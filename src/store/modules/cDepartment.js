@@ -1,32 +1,28 @@
-const vInsurance = {
+const cDepartment = {
     state: {
-      vInsurance: {
+      cDepartment: {
             id:'',
-            licensePlate:'',
-            bAt:'',
-            eAt:'',
+            name:'',
+            code:'',
             cAt:'',
             lAt:'',
             dAt:'',
-            num:'',
-            price:'',
-            opId:'',
       },
-      vInsuranceList:[],
+      cDepartmentList:[],
       totalPage:0,
       pageNumber:1,
       pageSize:15,
       totalRow:0,
     },
     mutations: {
-      setVInsurance(state, obj) {
-        state.vInsurance = Object.assign({}, obj)
+      setCDepartment(state, obj) {
+        state.cDepartment = Object.assign({}, obj)
       },
-      setVInsuranceList(state, list) {
-        state.vInsuranceList = list
+      setCDepartmentList(state, list) {
+        state.cDepartmentList = list
       },
-      setVInsurancePage(state, page) {
-        state.vInsuranceList = page.list
+      setCDepartmentPage(state, page) {
+        state.cDepartmentList = page.list
         state.totalPage=page.totalPage
         state.pageNumber=page.pageNumber
         state.pageSize=page.pageSize
@@ -34,41 +30,41 @@ const vInsurance = {
       },
     },
     actions: {
-      list_vInsurance: function ({
+      list_cDepartment: function ({
         commit,
         state
       }, param) {
         let vm=this._vm;
         return new Promise(function (resolve, reject) {
-        vm.$http.post('/vInsurance/list',param).then((res) => {
-          commit('setVInsuranceList', res)
+        vm.$http.post('/cDepartment/list',param).then((res) => {
+          commit('setCDepartmentList', res)
           resolve(res)
         }).catch((res)=>{
                                 reject(res)
                               });
                               })
       },
-      page_vInsurance: function ({
+      page_cDepartment: function ({
               commit,
               state
       }, param) {
          let vm=this._vm;
                  return new Promise(function (resolve, reject) {
-         vm.$http.post('/vInsurance/page',param).then((res) => {
-            commit('setVInsurancePage', res)
+         vm.$http.post('/cDepartment/page',param).then((res) => {
+            commit('setCDepartmentPage', res)
             resolve(res)
          }).catch((res)=>{
                                            reject(res)
                                          });
                                          })
       },
-      save_vInsurance: function ({
+      save_cDepartment: function ({
         commit,
         state
       }, param) {
           let vm=this._vm;
         return new Promise(function (resolve, reject) {
-          vm.$http.post('/vInsurance/save', param).then((res) => {
+          vm.$http.post('/cDepartment/save', param).then((res) => {
               resolve(res)
           }).catch((res)=>{
                       reject(res)
@@ -76,52 +72,52 @@ const vInsurance = {
         })
 
       },
-      update_vInsurance: function ({
+      update_cDepartment: function ({
         commit,
         state
       }, param) {
           let vm=this._vm;
         return new Promise(function (resolve, reject) {
-          vm.$http.post('/vInsurance/update', param).then((res) => {
+          vm.$http.post('/cDepartment/update', param).then((res) => {
               resolve(res)
           }).catch((res)=>{
                       reject(res)
                     });
         })
       },
-      del_vInsurance: function ({
+      del_cDepartment: function ({
         commit,
         state
       }, param) {
           let vm=this._vm;
         return new Promise(function (resolve, reject) {
-          vm.$http.post('/vInsurance/logicDel', param).then((res) => {
+          vm.$http.post('/cDepartment/logicDel', param).then((res) => {
               resolve(res)
           }).catch((res)=>{
                       reject(res)
                     });
         })
       },
-      get_vInsurance: function ({
+      get_cDepartment: function ({
         commit,
         state
       }, param) {
           let vm=this._vm;
         return new Promise(function (resolve, reject) {
-          vm.$http.post('/vInsurance/get', param).then((res) => {
+          vm.$http.post('/cDepartment/get', param).then((res) => {
               resolve(res)
           }).catch((res)=>{
                       reject(res)
                     });
         })
       },
-      init_vInsurance: function ({
+      init_cDepartment: function ({
             commit,
             state
           }, param) {
             let vm = this._vm;
             return new Promise(function (resolve, reject) {
-              vm.$http.post('/vInsurance/init', param).then((res) => {
+              vm.$http.post('/cDepartment/init', param).then((res) => {
                 resolve(res)
               }).catch((res) => {
                 reject(res)
@@ -132,4 +128,4 @@ const vInsurance = {
 
   }
 
-export default vInsurance
+export default cDepartment

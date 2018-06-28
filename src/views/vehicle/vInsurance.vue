@@ -1,5 +1,6 @@
+
 <template>
-<div >
+<v-container>
   <v-dialog v-model="dialog" persistent max-width="500px">
       <v-card >
         <v-card-title>
@@ -10,20 +11,34 @@
                 <v-container grid-list-md>
                   <v-layout wrap>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                              <v-text-field v-model="vo.licensePlate"  label="牌照号" required
+                             <v-autocomplete
+                              :loading="loading"
+                              :items="allVInfo"
+                              :rules="[rules.required]"
+                              v-model="vo.licensePlate"
+                              cache-items
+                              
+                              hide-no-data
+                              label="牌照号"
+                              item-text="licensePlate"
+                              item-value="licensePlate"
+                              required
+                              
+                            ></v-autocomplete>
+                              <!-- <v-text-field v-model="vo.licensePlate"  label="牌照号" required
                                   :rules="[
                                   rules.required,
                                   (v) => !!v||(v!=undefined&&v.length <= 20) || '最多 20 字符',
                                   ]"
                                   :counter="20">
-                              </v-text-field>
+                              </v-text-field> -->
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-menu
                                         ref="bAtDateMenu"
                                         :close-on-content-click="false"
-                                        v-model="bAtMenu"
-                                        :return-value.sync="vInsurance.bAt"
+                                        v-model="bAtDateMenu"
+                                        :return-value.sync="vo.bAt"
                                         :nudge-right="40"
                                         lazy
                                         transition="scale-transition"
@@ -41,15 +56,15 @@
                                           readonly
                                           :rules="[rules.required]"
                                         ></v-text-field>
-                                        <v-date-picker v-model="vInsurance.bAt" locale="zh-cn"  @input="$refs.bAtMenu.save(vInsurance.bAt)"></v-date-picker>
+                                        <v-date-picker v-model="vo.bAt" locale="zh-cn"  @input="$refs.bAtDateMenu.save(vo.bAt)"></v-date-picker>
                                       </v-menu>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                              <v-menu
+                              <v-menu disabled
                                         ref="eAtDateMenu"
                                         :close-on-content-click="false"
-                                        v-model="eAtMenu"
-                                        :return-value.sync="vInsurance.eAt"
+                                        v-model="eAtDateMenu"
+                                        :return-value.sync="vo.eAt"
                                         :nudge-right="40"
                                         lazy
                                         transition="scale-transition"
@@ -67,7 +82,7 @@
                                           readonly
                                           :rules="[rules.required]"
                                         ></v-text-field>
-                                        <v-date-picker v-model="vInsurance.eAt" locale="zh-cn"  @input="$refs.eAtMenu.save(vInsurance.eAt)"></v-date-picker>
+                                        <v-date-picker v-model="vo.eAt" locale="zh-cn"  @input="$refs.eAtDateMenu.save(vo.eAt)"></v-date-picker>
                                       </v-menu>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
@@ -120,10 +135,10 @@
                                     <v-list-tile-content>保险单号:</v-list-tile-content><v-list-tile-content class="align-end">{{vInsuranceView.num}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
-                                    <v-list-tile-content>保单金额:</v-list-tile-content><v-list-tile-content class="align-end">{{vInsuranceView.price}}</v-list-tile-content>
+                                    <v-list-tile-content>保单金额:</v-list-tile-content><v-list-tile-content class="align-end">{{vInsuranceView.priceStr}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
-                                    <v-list-tile-content>操作员:</v-list-tile-content><v-list-tile-content class="align-end">{{vInsuranceView.opId}}</v-list-tile-content>
+                                    <v-list-tile-content>操作员:</v-list-tile-content><v-list-tile-content class="align-end">{{vInsuranceView.opName}}</v-list-tile-content>
                              </v-list-tile>
                   </v-list>
           <v-card-actions>
@@ -142,13 +157,50 @@
               <v-container grid-list-md>
                       <v-layout row wrap>
                          <v-flex xs12 sm3 md3>
-                            <v-text-field v-model="vInsuranceQuery.licensePlate"  label="牌照号" single-line hide-details ></v-text-field>
+                           <v-autocomplete
+                              :loading="loading"
+                              :items="allVInfo"
+                              v-model="vInsuranceQuery.licensePlate"
+                              cache-items
+                              hide-no-data
+                              label="牌照号"
+                              item-text="licensePlate"
+                              item-value="licensePlate"
+                              required
+                              
+                            ></v-autocomplete>
+                            
+                         </v-flex>
+                         <v-flex xs12 sm3 md3 >
+                              <v-menu ref="bAtQueryBeginDateMenu" :close-on-content-click="false" v-model="bAtQueryBeginDateMenu" :return-value.sync="vInsuranceQuery.beginBAt"
+                                   :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
+                                   <v-text-field slot="activator" v-model="vInsuranceQuery.beginBAt" label="保险开始日期查询开始日期" prepend-icon="event" readonly ></v-text-field>
+                                   <v-date-picker v-model="vInsuranceQuery.beginBAt" locale="zh-cn"  @input="$refs.bAtQueryBeginDateMenu.save(vInsuranceQuery.beginBAt)"></v-date-picker>
+                             </v-menu>
+                         </v-flex>
+                         <v-flex xs12 sm3 md3 >
+                              <v-menu ref="bAtQueryEndDateMenu" :close-on-content-click="false" v-model="bAtQueryEndDateMenu" :return-value.sync="vInsuranceQuery.endBAt"
+                                    :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
+                                    <v-text-field slot="activator" v-model="vInsuranceQuery.endBAt" label="保险开始日期查询截至日期" prepend-icon="event" readonly ></v-text-field>
+                                    <v-date-picker v-model="vInsuranceQuery.endBAt" locale="zh-cn"  @input="$refs.bAtQueryEndDateMenu.save(vInsuranceQuery.endBAt)"></v-date-picker>
+                              </v-menu>
+                         </v-flex>
+                         <v-flex xs12 sm3 md3 >
+                              <v-menu ref="eAtQueryBeginDateMenu" :close-on-content-click="false" v-model="eAtQueryBeginDateMenu" :return-value.sync="vInsuranceQuery.beginEAt"
+                                   :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
+                                   <v-text-field slot="activator" v-model="vInsuranceQuery.beginEAt" label="保险结束日期查询开始日期" prepend-icon="event" readonly ></v-text-field>
+                                   <v-date-picker v-model="vInsuranceQuery.beginEAt" locale="zh-cn"  @input="$refs.eAtQueryBeginDateMenu.save(vInsuranceQuery.beginEAt)"></v-date-picker>
+                             </v-menu>
+                         </v-flex>
+                         <v-flex xs12 sm3 md3 >
+                              <v-menu ref="eAtQueryEndDateMenu" :close-on-content-click="false" v-model="eAtQueryEndDateMenu" :return-value.sync="vInsuranceQuery.endEAt"
+                                    :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
+                                    <v-text-field slot="activator" v-model="vInsuranceQuery.endEAt" label="保险结束日期查询截至日期" prepend-icon="event" readonly ></v-text-field>
+                                    <v-date-picker v-model="vInsuranceQuery.endEAt" locale="zh-cn"  @input="$refs.eAtQueryEndDateMenu.save(vInsuranceQuery.endEAt)"></v-date-picker>
+                              </v-menu>
                          </v-flex>
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="vInsuranceQuery.num"  label="保险单号" single-line hide-details ></v-text-field>
-                         </v-flex>
-                         <v-flex xs12 sm3 md3>
-                            <v-text-field v-model="vInsuranceQuery.opId"  label="操作员" single-line hide-details ></v-text-field>
                          </v-flex>
                         <v-flex xs12 sm3 md3>
                              <v-btn color="primary" class="white--text" @click="search()">
@@ -160,7 +212,7 @@
                         </v-flex>
                       </v-layout>
               </v-container>
-            <v-data-table :headers="vInsuranceHeaders" :total-items="totalRow" :hide-actions="totalRow==0" :items="vInsuranceList" :rows-per-page-items="rowsPerPageItems" :pagination.sync="vInsuranceQuery"  class="elevation-1" no-data-text="数据为空" no-results-text="没有筛选到正确的数据">
+            <v-data-table :headers="vInsuranceHeaders" :total-items="totalRow" style="font-size : 1em;" :hide-actions="totalRow==0" :items="vInsuranceList" :rows-per-page-items="rowsPerPageItems" :pagination.sync="vInsuranceQuery"  class="elevation-1" no-data-text="数据为空" no-results-text="没有筛选到正确的数据">
               <template slot="items" slot-scope="props">
                     <td>
                                {{props.item.licensePlate}}
@@ -175,10 +227,10 @@
                                {{props.item.num}}
                     </td>
                     <td>
-                               {{props.item.price}}
+                               {{props.item.priceStr}}
                     </td>
                     <td>
-                               {{props.item.opId}}
+                               {{props.item.opName}}
                     </td>
                 <td class=" layout px-0">
                   <v-btn icon class="mx-0" @click="edit(props.item)">
@@ -194,7 +246,7 @@
               </template>
           </v-data-table>
       </v-card>
-</div>
+</v-container>
 </template>
 <script>
 import { mapState } from "vuex";
@@ -225,7 +277,7 @@ export default {
         },
         {
           text: "保险结束日期",
-          sortable: false,
+          sortable: true,
           value: "eAt"
         },
         {
@@ -249,7 +301,12 @@ export default {
       viewDialog: false,
       opt: "",
       bAtDateMenu: false,
-      eAtDateMenu: false
+      eAtDateMenu: false,
+      bAtQueryEndDateMenu:false,
+      bAtQueryBeginDateMenu:false,
+      eAtQueryBeginDateMenu:false,
+      eAtQueryEndDateMenu:false,
+      allVInfo:[],
     };
   },
   computed: {
@@ -263,10 +320,19 @@ export default {
     })
   },
   mounted() {
-    this.vInsuranceQuery["pn"] = this.serQuery.page;
+    this.vInsuranceQuery["pn"] = this.vInsuranceQuery.page;
     this.search();
+    this.init();
   },
   methods: {
+    init(){
+      let vm=this;
+      this.$store
+        .dispatch("init_vInsurance")
+        .then(res => {
+          vm.allVInfo=res.allVInfo;
+        });
+    },
     search() {
       this.$store
         .dispatch("page_vInsurance", this.vInsuranceQuery)
@@ -275,6 +341,7 @@ export default {
     add() {
       this.loading = false;
       this.$refs.form.reset();
+      this.vo={};
       this.opt = "add";
       this.title = "新增车辆保险";
       this.dialog = true;
@@ -355,24 +422,20 @@ export default {
     },
     clearQueryParam() {
       this.vInsuranceQuery["licensePlate"] = "";
-      this.vInsuranceQuery["bAt"] = "";
-      this.vInsuranceQuery["eAt"] = "";
+      this.vInsuranceQuery["beginBAt"] = "";
+      this.vInsuranceQuery["beginEAt"] = "";
+      this.vInsuranceQuery["endBAt"] = "";
+      this.vInsuranceQuery["endEAt"] = "";
       this.vInsuranceQuery["num"] = "";
       this.vInsuranceQuery["opId"] = "";
+      this.search();
     }
   },
   filters: {
     formatDate(time) {
       if (!!!time) return "";
       var date = new Date(time);
-      return moment(date).format("YYYY-MM-DD hh:mm:ss");
-    }
-  },
-  filters: {
-    formatDate(time) {
-      if (!!!time) return "";
-      var date = new Date(time);
-      return moment(date).format("YYYY-MM-DD hh:mm:ss");
+      return moment(date).format("YYYY-MM-DD");
     }
   },
   watch: {
@@ -383,9 +446,21 @@ export default {
         }
       },
       deep: true
+    },
+    'vo.bAt':{
+      handler(val,oldVal){
+        if(val){
+          this.vo.bAt=moment(val).format('YYYY-MM-DD');
+          this.vo.eAt=moment(val).add(1, 'y').format('YYYY-MM-DD');
+        }
+        
+      }
     }
   }
 };
 </script>
+
+
 <style>
+  
 </style>

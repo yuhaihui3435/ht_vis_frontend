@@ -1,5 +1,5 @@
 <template>
-<div >
+<v-container>
   <v-dialog v-model="dialog" persistent max-width="500px">
       <v-card >
         <v-card-title>
@@ -9,7 +9,7 @@
             <v-form v-model="fValid" ref="form" lazy-validation>
                 <v-container grid-list-md>
                   <v-layout wrap>
-                           <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
+                           <v-flex xs12 sm12 md12 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.title"  label="主题" required
                                   :rules="[
                                   rules.required,
@@ -19,18 +19,11 @@
                               </v-text-field>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                <v-select :items="cMeetingSelectData" v-model="vo.host" :rules="[rules.required]" label="主持人" required item-value="value" item-text="text"></v-select>
+                                <v-select :items="hostSelectData" v-model="vo.host" :rules="[rules.required]" label="主持人" required item-value="value" item-text="text"></v-select>
                            </v-flex>
-                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                                      <v-text-field v-model="vo.content"  label="内容" textarea required
-                                                          :rules="[
-                                                          rules.required,
-                                                          ]"
-                                                          >
-                                                      </v-text-field>
-                            </v-flex>
+                            
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                <v-select :items="cMeetingSelectData" v-model="vo.type" :rules="[rules.required]" label="类型" required item-value="value" item-text="text"></v-select>
+                                <v-select :items="typeSelectData" v-model="vo.type" :rules="[rules.required]" label="类型" required item-value="value" item-text="text"></v-select>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.num"  label="参会人数" 
@@ -40,6 +33,40 @@
                                   >
                               </v-text-field>
                            </v-flex>
+                           <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
+                              <v-menu
+                                        ref="mAtDateMenu"
+                                        :close-on-content-click="false"
+                                        v-model="mAtDateMenu"
+                                        :return-value.sync="vo.mAt"
+                                        :nudge-right="40"
+                                        lazy
+                                        transition="scale-transition"
+                                        offset-y
+                                        full-width
+                                        max-width="290px"
+                                        min-width="290px"
+                                      >
+                                        <v-text-field
+                                          slot="activator"
+                                          v-model="vo.mAt"
+                                          label="会议日期"
+                                          required
+                                          prepend-icon="event"
+                                          readonly
+                                          :rules="[rules.required]"
+                                        ></v-text-field>
+                                        <v-date-picker v-model="vo.mAt" locale="zh-cn"  @input="$refs.mAtDateMenu.save(vo.mAt)"></v-date-picker>
+                                      </v-menu>
+                           </v-flex>
+                           <v-flex xs12 sm12 md12 v-show="opt=='add'||opt=='edit'">
+                                                      <v-textarea v-model="vo.content"  label="内容"  required outline
+                                                          :rules="[
+                                                          rules.required,
+                                                          ]"
+                                                          >
+                                                      </v-textarea>
+                            </v-flex>
                   </v-layout>
                 </v-container>
             </v-form>
@@ -71,6 +98,9 @@
                               <v-list-tile>
                                     <v-list-tile-content>参会人数:</v-list-tile-content><v-list-tile-content class="align-end">{{cMeetingView.num}}</v-list-tile-content>
                              </v-list-tile>
+                              <v-list-tile>
+                                    <v-list-tile-content>会议日期:</v-list-tile-content><v-list-tile-content class="align-end">{{cMeetingView.mAt | formatDate}}</v-list-tile-content>
+                             </v-list-tile>
                   </v-list>
           <v-card-actions>
             <v-spacer></v-spacer>
@@ -91,8 +121,22 @@
                             <v-text-field v-model="cMeetingQuery.title"  label="主题" single-line hide-details ></v-text-field>
                          </v-flex>
                     <v-flex xs12 sm3 md3>
-                        <v-select :items="cMeetingSelectData" v-model="cMeetingQuery.type" label="类型"  item-value="value" item-text="text"></v-select>
+                        <v-select :items="typeSelectData" v-model="cMeetingQuery.type" label="类型"  item-value="value" item-text="text"></v-select>
                     </v-flex>
+                         <v-flex xs12 sm3 md3 >
+                              <v-menu ref="mAtQueryBeginDateMenu" :close-on-content-click="false" v-model="mAtQueryBeginDateMenu" :return-value.sync="cMeetingQuery.beginMAt"
+                                   :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
+                                   <v-text-field slot="activator" v-model="cMeetingQuery.beginMAt" label="会议日期查询开始日期" prepend-icon="event" readonly ></v-text-field>
+                                   <v-date-picker v-model="cMeetingQuery.beginMAt" locale="zh-cn"  @input="$refs.mAtQueryBeginDateMenu.save(cMeetingQuery.beginMAt)"></v-date-picker>
+                             </v-menu>
+                         </v-flex>
+                         <v-flex xs12 sm3 md3 >
+                              <v-menu ref="mAtQueryEndDateMenu" :close-on-content-click="false" v-model="mAtQueryEndDateMenu" :return-value.sync="cMeetingQuery.endMAt"
+                                    :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
+                                    <v-text-field slot="activator" v-model="cMeetingQuery.endMAt" label="会议日期查询截至日期" prepend-icon="event" readonly ></v-text-field>
+                                    <v-date-picker v-model="cMeetingQuery.endMAt" locale="zh-cn"  @input="$refs.mAtQueryEndDateMenu.save(cMeetingQuery.endMAt)"></v-date-picker>
+                              </v-menu>
+                         </v-flex>
                         <v-flex xs12 sm3 md3>
                              <v-btn color="primary" class="white--text" @click="search()">
                                  搜索<v-icon>search</v-icon>
@@ -117,6 +161,9 @@
                     <td>
                                {{props.item.num}}
                     </td>
+                    <td>
+                               {{props.item.mAt | formatDate}}
+                    </td>
                 <td class=" layout px-0">
                   <v-btn icon class="mx-0" @click="edit(props.item)">
                     <v-icon color="teal">edit</v-icon>
@@ -131,11 +178,12 @@
               </template>
           </v-data-table>
       </v-card>
-</div>
+</v-container>
 </template>
 <script>
 import { mapState } from "vuex";
 import Kit from "../../libs/kit.js";
+var moment = require("moment");
 export default {
   data() {
     return {
@@ -144,7 +192,9 @@ export default {
       vo: {},
       rowsPerPageItems: [15],
       cMeetingQuery: { pn: 1, sortBy: "", descending: "" }, //列表查询参数数据对象
-      cMeetingView: {}, //查询详细数据对象
+      cMeetingView: {
+        
+      }, //查询详细数据对象
       loading: false,
       title: "新增会议记录",
       rules: Kit.inputRules,
@@ -169,13 +219,21 @@ export default {
           sortable: false,
           value: "num"
         },
+        {
+          text: "会议日期",
+          sortable: false,
+          value: "mAt"
+        },
         { text: "操作", sortable: false }
       ],
       dialog: false,
       viewDialog: false,
       opt: "",
       hostSelectData: [],
-      typeSelectData: []
+      typeSelectData: [],
+      mAtDateMenu: false,
+      mAtQueryBeginDateMenu: false,
+      mAtQueryEndDateMenu: false
     };
   },
   computed: {
@@ -189,10 +247,15 @@ export default {
     })
   },
   mounted() {
-    this.cMeetingQuery["pn"] = this.serQuery.page;
+    this.cMeetingQuery["pn"] = this.cMeetingQuery.page;
     this.search();
+    this.init();
   },
   methods: {
+    init() {
+      let vm = this;
+      this.$store.dispatch("init_cMeeting").then(res => {});
+    },
     search() {
       this.$store
         .dispatch("page_cMeeting", this.cMeetingQuery)
@@ -201,6 +264,7 @@ export default {
     add() {
       this.loading = false;
       this.$refs.form.reset();
+      this.vo = {mAt:moment(new Date).format("YYYY-MM-DD")};
       this.opt = "add";
       this.title = "新增会议记录";
       this.dialog = true;
@@ -282,6 +346,16 @@ export default {
     clearQueryParam() {
       this.cMeetingQuery["title"] = "";
       this.cMeetingQuery["type"] = "";
+      this.cMeetingQuery["beginMAt"] = "";
+      this.cMeetingQuery["endMAt"] = "";
+      this.search();
+    }
+  },
+  filters: {
+    formatDate(time) {
+      if (!!!time) return "";
+      var date = new Date(time);
+      return moment(date).format("YYYY-MM-DD hh:mm:ss");
     }
   },
   watch: {
@@ -292,6 +366,11 @@ export default {
         }
       },
       deep: true
+    },
+    'vo.mAt':{
+      handler(val,oldVal){
+        
+      }
     }
   }
 };

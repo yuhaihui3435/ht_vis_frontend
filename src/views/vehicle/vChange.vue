@@ -1,5 +1,5 @@
 <template>
-<div >
+<v-container>
   <v-dialog v-model="dialog" persistent max-width="500px">
       <v-card >
         <v-card-title>
@@ -10,6 +10,20 @@
                 <v-container grid-list-md>
                   <v-layout wrap>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
+                              <v-autocomplete
+                              :loading="loading"
+                              :items="allVInfo"
+                              :rules="[rules.required]"
+                              v-model="vo.licensePlate"
+                              cache-items
+                              hide-no-data
+                              label="牌照号"
+                              item-text="licensePlate"
+                              item-value="licensePlate"
+                              required
+                            ></v-autocomplete>
+                           </v-flex>
+                           <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.bHost"  label="前车主" required
                                   :rules="[
                                   rules.required,
@@ -19,10 +33,9 @@
                               </v-text-field>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                              <v-text-field v-model="vo.licensePlate"  label="牌照号" required
+                              <v-text-field v-model="vo.bTel"  label="前联系电话" 
                                   :rules="[
-                                  rules.required,
-                                  (v) => !!v||(v!=undefined&&v.length <= 50) || '最多 50 字符',
+                                  (v)=>!!!v||(v!=undefined&&v.length <= 50) || '最多 50 字符',
                                   ]"
                                   :counter="50">
                               </v-text-field>
@@ -44,21 +57,6 @@
                                   :counter="50">
                               </v-text-field>
                            </v-flex>
-                           <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                              <v-text-field v-model="vo.bTel"  label="前联系电话" 
-                                  :rules="[
-                                  (v)=>!!!v||(v!=undefined&&v.length <= 50) || '最多 50 字符',
-                                  ]"
-                                  :counter="50">
-                              </v-text-field>
-                           </v-flex>
-                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                                      <v-text-field v-model="vo.remark"  label="备注" textarea 
-                                                          :rules="[
-                                                          ]"
-                                                          >
-                                                      </v-text-field>
-                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'">
                               <v-text-field v-model="vo.price"  label="价格" required
                                   :rules="[
@@ -77,6 +75,39 @@
                                   >
                               </v-text-field>
                            </v-flex>
+                           <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
+                              <v-menu
+                                        ref="changeDateDateMenu"
+                                        :close-on-content-click="false"
+                                        v-model="changeDateDateMenu"
+                                        :return-value.sync="vo.changeDate"
+                                        :nudge-right="40"
+                                        lazy
+                                        transition="scale-transition"
+                                        offset-y
+                                        full-width
+                                        max-width="290px"
+                                        min-width="290px"
+                                      >
+                                        <v-text-field
+                                          slot="activator"
+                                          v-model="vo.changeDate"
+                                          label="过户日期"
+                                          required
+                                          prepend-icon="event"
+                                          readonly
+                                          :rules="[rules.required]"
+                                        ></v-text-field>
+                                        <v-date-picker v-model="vo.changeDate" locale="zh-cn"  @input="$refs.changeDateDateMenu.save(vo.changeDate)"></v-date-picker>
+                                      </v-menu>
+                           </v-flex>
+                           <v-flex xs12 sm12 md12 v-show="opt=='add'||opt=='edit'">
+                                                      <v-textarea v-model="vo.remark"  label="备注"  outline
+                                                          :rules="[
+                                                          ]"
+                                                          >
+                                                      </v-textarea>
+                            </v-flex>
                   </v-layout>
                 </v-container>
             </v-form>
@@ -96,11 +127,15 @@
           </v-card-title>
             <v-divider></v-divider>
                   <v-list dense>
-                              <v-list-tile>
-                                    <v-list-tile-content>前车主:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.bHost}}</v-list-tile-content>
-                             </v-list-tile>
+                              
                               <v-list-tile>
                                     <v-list-tile-content>牌照号:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.licensePlate}}</v-list-tile-content>
+                             </v-list-tile>
+                             <v-list-tile>
+                                    <v-list-tile-content>前车主:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.bHost}}</v-list-tile-content>
+                             </v-list-tile>
+                             <v-list-tile>
+                                    <v-list-tile-content>前联系电话:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.bTel}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>现车主:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.aHost}}</v-list-tile-content>
@@ -108,17 +143,19 @@
                               <v-list-tile>
                                     <v-list-tile-content>现联系电话:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.aTel}}</v-list-tile-content>
                              </v-list-tile>
+                              
+                             
                               <v-list-tile>
-                                    <v-list-tile-content>前联系电话:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.bTel}}</v-list-tile-content>
+                                    <v-list-tile-content>价格:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.priceStr}}</v-list-tile-content>
+                             </v-list-tile>
+                              <v-list-tile>
+                                    <v-list-tile-content>手续费:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.feeStr}}</v-list-tile-content>
+                             </v-list-tile>
+                              <v-list-tile>
+                                    <v-list-tile-content>过户日期:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.changeDate | formatDate}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>备注:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.remark}}</v-list-tile-content>
-                             </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>价格:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.price}}</v-list-tile-content>
-                             </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>手续费:</v-list-tile-content><v-list-tile-content class="align-end">{{vChangeView.fee}}</v-list-tile-content>
                              </v-list-tile>
                   </v-list>
           <v-card-actions>
@@ -137,7 +174,31 @@
               <v-container grid-list-md>
                       <v-layout row wrap>
                          <v-flex xs12 sm3 md3>
-                            <v-text-field v-model="vChangeQuery.licensePlate"  label="牌照号" single-line hide-details ></v-text-field>
+                          <v-autocomplete
+                              :loading="loading"
+                              :items="allVInfo"
+                              v-model="vChangeQuery.licensePlate"
+                              cache-items
+                              hide-no-data
+                              label="牌照号"
+                              item-text="licensePlate"
+                              item-value="licensePlate"
+                              required
+                            ></v-autocomplete>
+                         </v-flex>
+                         <v-flex xs12 sm3 md3 >
+                              <v-menu ref="changeDateQueryBeginDateMenu" :close-on-content-click="false" v-model="changeDateQueryBeginDateMenu" :return-value.sync="vChangeQuery.beginChangeDate"
+                                   :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
+                                   <v-text-field slot="activator" v-model="vChangeQuery.beginChangeDate" label="过户日期查询开始日期" prepend-icon="event" readonly ></v-text-field>
+                                   <v-date-picker v-model="vChangeQuery.beginChangeDate" locale="zh-cn"  @input="$refs.changeDateQueryBeginDateMenu.save(vChangeQuery.beginChangeDate)"></v-date-picker>
+                             </v-menu>
+                         </v-flex>
+                         <v-flex xs12 sm3 md3 >
+                              <v-menu ref="changeDateQueryEndDateMenu" :close-on-content-click="false" v-model="changeDateQueryEndDateMenu" :return-value.sync="vChangeQuery.endChangeDate"
+                                    :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
+                                    <v-text-field slot="activator" v-model="vChangeQuery.endChangeDate" label="过户日期查询截至日期" prepend-icon="event" readonly ></v-text-field>
+                                    <v-date-picker v-model="vChangeQuery.endChangeDate" locale="zh-cn"  @input="$refs.changeDateQueryEndDateMenu.save(vChangeQuery.endChangeDate)"></v-date-picker>
+                              </v-menu>
                          </v-flex>
                         <v-flex xs12 sm3 md3>
                              <v-btn color="primary" class="white--text" @click="search()">
@@ -151,11 +212,15 @@
               </v-container>
             <v-data-table :headers="vChangeHeaders" :total-items="totalRow" :hide-actions="totalRow==0" :items="vChangeList" :rows-per-page-items="rowsPerPageItems" :pagination.sync="vChangeQuery"  class="elevation-1" no-data-text="数据为空" no-results-text="没有筛选到正确的数据">
               <template slot="items" slot-scope="props">
+                    
+                    <td>
+                               {{props.item.licensePlate}}
+                    </td>
                     <td>
                                {{props.item.bHost}}
                     </td>
                     <td>
-                               {{props.item.licensePlate}}
+                               {{props.item.bTel}}
                     </td>
                     <td>
                                {{props.item.aHost}}
@@ -163,17 +228,18 @@
                     <td>
                                {{props.item.aTel}}
                     </td>
+                    
                     <td>
-                               {{props.item.bTel}}
+                               {{props.item.priceStr}}
                     </td>
                     <td>
-                               {{props.item.price}}
+                               {{props.item.feeStr}}
                     </td>
                     <td>
-                               {{props.item.fee}}
+                               {{props.item.opName}}
                     </td>
                     <td>
-                               {{props.item.opId}}
+                               {{props.item.changeDate | formatDate}}
                     </td>
                 <td class=" layout px-0">
                   <v-btn icon class="mx-0" @click="edit(props.item)">
@@ -189,11 +255,12 @@
               </template>
           </v-data-table>
       </v-card>
-</div>
+</v-container>
 </template>
 <script>
 import { mapState } from "vuex";
 import Kit from "../../libs/kit.js";
+var moment = require("moment");
 export default {
   data() {
     return {
@@ -208,14 +275,19 @@ export default {
       rules: Kit.inputRules,
       vChangeHeaders: [
         {
+          text: "牌照号",
+          sortable: false,
+          value: "licensePlate"
+        },
+        {
           text: "前车主",
           sortable: false,
           value: "bHost"
         },
         {
-          text: "牌照号",
+          text: "前联系电话",
           sortable: false,
-          value: "licensePlate"
+          value: "bTel"
         },
         {
           text: "现车主",
@@ -227,11 +299,7 @@ export default {
           sortable: false,
           value: "aTel"
         },
-        {
-          text: "前联系电话",
-          sortable: false,
-          value: "bTel"
-        },
+        
         {
           text: "价格",
           sortable: false,
@@ -247,11 +315,20 @@ export default {
           sortable: false,
           value: "opId"
         },
+        {
+          text: "过户日期",
+          sortable: true,
+          value: "changeDate"
+        },
         { text: "操作", sortable: false }
       ],
       dialog: false,
       viewDialog: false,
-      opt: ""
+      opt: "",
+      changeDateDateMenu: false,
+      changeDateQueryBeginDateMenu: false,
+      changeDateQueryEndDateMenu: false,
+      allVInfo: []
     };
   },
   computed: {
@@ -265,16 +342,24 @@ export default {
     })
   },
   mounted() {
-    this.vChangeQuery["pn"] = this.serQuery.page;
+    this.vChangeQuery["pn"] = this.vChangeQuery.page;
     this.search();
+    this.init();
   },
   methods: {
+    init() {
+      let vm = this;
+      this.$store.dispatch("init_vChange").then(res => {
+        vm.allVInfo = res.allVInfo;
+      });
+    },
     search() {
       this.$store.dispatch("page_vChange", this.vChangeQuery).catch(res => {});
     },
     add() {
       this.loading = false;
       this.$refs.form.reset();
+      this.vo = {};
       this.opt = "add";
       this.title = "新增过户记录";
       this.dialog = true;
@@ -355,6 +440,16 @@ export default {
     },
     clearQueryParam() {
       this.vChangeQuery["licensePlate"] = "";
+      this.vChangeQuery["beginChangeDate"] = "";
+      this.vChangeQuery["endChangeDate"] = "";
+      this.search();
+    }
+  },
+  filters: {
+    formatDate(time) {
+      if (!!!time) return "";
+      var date = new Date(time);
+      return moment(date).format("YYYY-MM-DD");
     }
   },
   watch: {

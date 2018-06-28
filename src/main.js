@@ -36,10 +36,11 @@ import {
   VDatePicker,
   Vpagination,
   VDivider,
-  VCheckbox,VRadioGroup
+  VCheckbox,VRadioGroup,VAutocomplete,VTextarea
 } from 'vuetify'
 import APDialog from './components/ap-confrim-dialog/index'
 import '../node_modules/vuetify/src/stylus/app.styl'
+import '../static/global.css'
 
 Vue.use(Vuetify, {
   components: {
@@ -70,7 +71,7 @@ Vue.use(Vuetify, {
     VDatePicker,
     Vpagination,
     VDivider,
-    VCheckbox,VRadioGroup
+    VCheckbox,VRadioGroup,VAutocomplete,VTextarea
   },
   theme: {
     primary: "#2196F3",

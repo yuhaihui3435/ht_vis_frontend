@@ -44,7 +44,7 @@ const vInfo = {
       }, param) {
         let vm=this._vm;
         return new Promise(function (resolve, reject) {
-        vm.$http.post('/api/vInfo/list',param).then((res) => {
+        vm.$http.post('/vInfo/list',param).then((res) => {
           commit('setVInfoList', res)
           resolve(res)
         }).catch((res)=>{
@@ -58,7 +58,7 @@ const vInfo = {
       }, param) {
          let vm=this._vm;
                  return new Promise(function (resolve, reject) {
-         vm.$http.post('/api/vInfo/page',param).then((res) => {
+         vm.$http.post('/vInfo/page',param).then((res) => {
             commit('setVInfoPage', res)
             resolve(res)
          }).catch((res)=>{
@@ -72,7 +72,7 @@ const vInfo = {
       }, param) {
           let vm=this._vm;
         return new Promise(function (resolve, reject) {
-          vm.$http.post('/api/vInfo/save', state.vInfo).then((res) => {
+          vm.$http.post('/vInfo/save', param).then((res) => {
               resolve(res)
           }).catch((res)=>{
                       reject(res)
@@ -86,7 +86,7 @@ const vInfo = {
       }, param) {
           let vm=this._vm;
         return new Promise(function (resolve, reject) {
-          vm.$http.post('/api/vInfo/update', state.vInfo).then((res) => {
+          vm.$http.post('/vInfo/update', param).then((res) => {
               resolve(res)
           }).catch((res)=>{
                       reject(res)
@@ -99,7 +99,7 @@ const vInfo = {
       }, param) {
           let vm=this._vm;
         return new Promise(function (resolve, reject) {
-          vm.$http.post('/api/vInfo/logicDel', param).then((res) => {
+          vm.$http.post('/vInfo/logicDel', param).then((res) => {
               resolve(res)
           }).catch((res)=>{
                       reject(res)
@@ -112,11 +112,24 @@ const vInfo = {
       }, param) {
           let vm=this._vm;
         return new Promise(function (resolve, reject) {
-          vm.$http.post('/api/vInfo/get', param).then((res) => {
+          vm.$http.post('/vInfo/get', param).then((res) => {
               resolve(res)
           }).catch((res)=>{
                       reject(res)
                     });
+        })
+      },
+      init_vInfo: function ({
+        commit,
+        state
+      }, param) {
+          let vm=this._vm;
+        return new Promise(function (resolve, reject) {
+          vm.$http.post('/vInfo/init', param).then((res) => {
+              resolve(res)
+          }).catch((res)=>{
+              reject(res)
+          });
         })
       },
     },

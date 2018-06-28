@@ -11,6 +11,8 @@ import vInfo from './modules/vInfo';
 import vInsurance from './modules/vInsurance';
 import vChange from './modules/vChange';
 import cMeeting from './modules/cMeeting';
+import cDepartment from './modules/cDepartment';
+import cStaff from './modules/cStaff';
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -136,7 +138,9 @@ const store = new Vuex.Store({
     vInfo,
     vInsurance,
     vChange,
-    cMeeting
+    cMeeting,
+    cStaff,
+    cDepartment
   }
 });
 

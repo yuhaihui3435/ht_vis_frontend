@@ -38,18 +38,7 @@ export const otherRouter = {
       component: resolve => {
         require(['@/views/personCenter.vue'], resolve);
       }
-    },
-    {
-      path: 'genCfg',
-      title: '代码生成配置',
-      meta:{title:'代码生成配置'},
-      icon: "fab fa-java",
-      name: 'gen_cfg',
-      component: resolve => {
-        require(['@/views/sys-manage/gen/genCfg.vue'], resolve);
-      }
-    },
-
+    }
   ]
 };
 // 作为Main组件的子页面展示并且在左侧菜单显示的路由写在appRouter里
@@ -138,7 +127,7 @@ export const appRouter = [{
       icon: "directions_bus",
       name: 'vehicle_info',
       component: resolve => {
-        require(['@/views/vehicle/VInfo.vue'], resolve);
+        require(['@/views/vehicle/vInfo.vue'], resolve);
       }
     },
     {
@@ -148,7 +137,7 @@ export const appRouter = [{
       icon: "security",
       name: 'vehicle_insurance',
       component: resolve => {
-        require(['@/views/vehicle/VInsurance.vue'], resolve);
+        require(['@/views/vehicle/vInsurance.vue'], resolve);
       }
     },
     {
@@ -158,7 +147,7 @@ export const appRouter = [{
       icon: "compare_arrows",
       name: 'vehicle_change',
       component: resolve => {
-        require(['@/views/vehicle/VChange.vue'], resolve);
+        require(['@/views/vehicle/vChange.vue'], resolve);
       }
     },
     ]
@@ -167,20 +156,41 @@ export const appRouter = [{
   path: '/company',
   icon: 'business',
   name: 'company',
-  title: '办公管理',
+  title: '公司管理',
   component:Main,
-  meta:{title:'办公管理'},
+  meta:{title:'公司管理'},
   children: [
+    {
+      path: 'department',
+      title: '部门管理',
+      meta:{title:'部门管理',pTitle:'公司管理',icon: "class",},
+      icon: "class",
+      name: 'company_department',
+      component: resolve => {
+        require(['@/views/company/cDepartment.vue'], resolve);
+      }
+    },
+    {
+      path: 'staff',
+      title: '员工管理',
+      meta:{title:'员工管理',pTitle:'公司管理',icon: "account_box",},
+      icon: "account_box",
+      name: 'company_staff',
+      component: resolve => {
+        require(['@/views/company/cStaff.vue'], resolve);
+      }
+    },
     {
       path: 'meeting',
       title: '会议管理',
-      meta:{title:'会议管理',pTitle:'办公管理',icon: "account_balance",},
+      meta:{title:'会议管理',pTitle:'公司管理',icon: "account_balance",},
       icon: "account_balance",
       name: 'company_meeting',
       component: resolve => {
-        require(['@/views/company/CMeeting.vue'], resolve);
+        require(['@/views/company/cMeeting.vue'], resolve);
       }
     },
+    
     ]
   }
 ]

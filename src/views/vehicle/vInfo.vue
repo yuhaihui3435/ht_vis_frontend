@@ -1,5 +1,5 @@
 <template>
-<div >
+<v-container >
   <v-dialog v-model="dialog" persistent max-width="500px">
       <v-card >
         <v-card-title>
@@ -28,7 +28,13 @@
                               </v-text-field>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                <v-select :items="vInfoSelectData" v-model="vo.type" :rules="[rules.required]" label="类型" required item-value="value" item-text="text"></v-select>
+                                <v-select :items="typeSelectData" v-model="vo.type" :rules="[rules.required]" label="类型" required item-value="value" item-text="text"></v-select>
+                           </v-flex>
+                           <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(vo.type&&vo.type=='0')">
+                                <v-select :items="lineSelectData" v-model="vo.line" :rules="[]" label="线路"  item-value="id" item-text="name"></v-select>
+                           </v-flex>
+                           <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(vo.type&&vo.type=='1')">
+                                <v-select :items="areaSelectData" v-model="vo.area" :rules="[]" label="地区"  item-value="id" item-text="name"></v-select>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.tel"  label="手机" required
@@ -41,20 +47,11 @@
                               </v-text-field>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                              <v-text-field v-model="vo.telx"  label="备用手机" 
-                                  :rules="[
-                                  rules.phone,
-                                  (v)=>!!!v||(v!=undefined&&v.length <= 15) || '最多 15 字符',
-                                  ]"
-                                  :counter="15">
-                              </v-text-field>
-                           </v-flex>
-                           <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-menu
                                         ref="regDateDateMenu"
                                         :close-on-content-click="false"
-                                        v-model="regDateMenu"
-                                        :return-value.sync="vInfo.regDate"
+                                        v-model="regDateDateMenu"
+                                        :return-value.sync="vo.regDate"
                                         :nudge-right="40"
                                         lazy
                                         transition="scale-transition"
@@ -72,14 +69,17 @@
                                           readonly
                                           :rules="[rules.required]"
                                         ></v-text-field>
-                                        <v-date-picker v-model="vInfo.regDate" locale="zh-cn"  @input="$refs.regDateMenu.save(vInfo.regDate)"></v-date-picker>
+                                        <v-date-picker v-model="vo.regDate" locale="zh-cn"  @input="$refs.regDateDateMenu.save(vo.regDate)"></v-date-picker>
                                       </v-menu>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                <v-select :items="vInfoSelectData" v-model="vo.line" :rules="[]" label="线路"  item-value="value" item-text="text"></v-select>
-                           </v-flex>
-                           <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                <v-select :items="vInfoSelectData" v-model="vo.area" :rules="[]" label="地区"  item-value="value" item-text="text"></v-select>
+                              <v-text-field v-model="vo.telx"  label="备用手机" 
+                                  :rules="[
+                                  rules.phone,
+                                  (v)=>!!!v||(v!=undefined&&v.length <= 15) || '最多 15 字符',
+                                  ]"
+                                  :counter="15">
+                              </v-text-field>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.idcard"  label="身份证号" 
@@ -111,11 +111,17 @@
                               <v-list-tile>
                                     <v-list-tile-content>牌照号:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.licensePlate}}</v-list-tile-content>
                              </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>车主:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.host}}</v-list-tile-content>
+                             <v-list-tile>
+                                    <v-list-tile-content>类型:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.typeStr}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
-                                    <v-list-tile-content>类型:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.typeStr}}</v-list-tile-content>
+                                    <v-list-tile-content>线路:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.lineStr}}</v-list-tile-content>
+                             </v-list-tile>
+                              <v-list-tile>
+                                    <v-list-tile-content>地区:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.areaStr}}</v-list-tile-content>
+                             </v-list-tile>
+                              <v-list-tile>
+                                    <v-list-tile-content>车主:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.host}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>手机:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.tel}}</v-list-tile-content>
@@ -125,12 +131,6 @@
                              </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>注册时间:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.regDate | formatDate}}</v-list-tile-content>
-                             </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>线路:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.lineStr}}</v-list-tile-content>
-                             </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>地区:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.areaStr}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>身份证号:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.idcard}}</v-list-tile-content>
@@ -158,7 +158,7 @@
                             <v-text-field v-model="vInfoQuery.host"  label="车主" single-line hide-details ></v-text-field>
                          </v-flex>
                     <v-flex xs12 sm3 md3>
-                        <v-select :items="vInfoSelectData" v-model="vInfoQuery.type" label="类型"  item-value="value" item-text="text"></v-select>
+                        <v-select :items="typeSelectData" v-model="vInfoQuery.type" label="类型"  item-value="value" item-text="text"></v-select>
                     </v-flex>
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="vInfoQuery.tel"  label="手机" single-line hide-details ></v-text-field>
@@ -166,11 +166,11 @@
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="vInfoQuery.telx"  label="备用手机" single-line hide-details ></v-text-field>
                          </v-flex>
-                    <v-flex xs12 sm3 md3>
-                        <v-select :items="vInfoSelectData" v-model="vInfoQuery.line" label="线路"  item-value="value" item-text="text"></v-select>
+                    <v-flex xs12 sm3 md3 v-show="vInfoQuery.type=='0'">
+                        <v-select :items="lineSelectData" v-model="vInfoQuery.line" label="线路"   item-value="id" item-text="name"></v-select>
                     </v-flex>
-                    <v-flex xs12 sm3 md3>
-                        <v-select :items="vInfoSelectData" v-model="vInfoQuery.area" label="地区"  item-value="value" item-text="text"></v-select>
+                    <v-flex xs12 sm3 md3 v-show="vInfoQuery.type=='1'">
+                        <v-select :items="areaSelectData" v-model="vInfoQuery.area" label="地区"  item-value="id" item-text="name"></v-select>
                     </v-flex>
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="vInfoQuery.idcard"  label="身份证号" single-line hide-details ></v-text-field>
@@ -197,20 +197,21 @@
                                {{props.item.typeStr}}
                     </td>
                     <td>
-                               {{props.item.tel}}
-                    </td>
-                    <td>
-                               {{props.item.telx}}
-                    </td>
-                    <td>
-                               {{props.item.regDate | formatDate}}
-                    </td>
-                    <td>
                                {{props.item.lineStr}}
                     </td>
                     <td>
                                {{props.item.areaStr}}
                     </td>
+                    <td>
+                               {{props.item.tel}}
+                    </td>
+                    <td>
+                               {{props.item.regDate | formatDate}}
+                    </td>
+                    <td>
+                               {{props.item.telx}}
+                    </td>
+                    
                     <td>
                                {{props.item.idcard}}
                     </td>
@@ -228,7 +229,7 @@
               </template>
           </v-data-table>
       </v-card>
-</div>
+</v-container>
 </template>
 <script>
 import { mapState } from "vuex";
@@ -263,21 +264,6 @@ export default {
           value: "type"
         },
         {
-          text: "手机",
-          sortable: false,
-          value: "tel"
-        },
-        {
-          text: "备用手机",
-          sortable: false,
-          value: "telx"
-        },
-        {
-          text: "注册时间",
-          sortable: false,
-          value: "regDate"
-        },
-        {
           text: "线路",
           sortable: false,
           value: "line"
@@ -287,6 +273,22 @@ export default {
           sortable: false,
           value: "area"
         },
+        {
+          text: "手机",
+          sortable: false,
+          value: "tel"
+        },
+        {
+          text: "注册时间",
+          sortable: false,
+          value: "regDate"
+        },
+        {
+          text: "备用手机",
+          sortable: false,
+          value: "telx"
+        },
+        
         {
           text: "身份证号",
           sortable: false,
@@ -317,16 +319,25 @@ export default {
     })
   },
   mounted() {
-    this.vInfoQuery["pn"] = this.serQuery.page;
+    this.vInfoQuery["pn"] = this.vInfoQuery.page;
     this.search();
+    this.init();
   },
   methods: {
+    init() {
+      let vm = this;
+      vm.$store.dispatch("init_vInfo").then(res => {
+        vm.lineSelectData = res.busLineList;
+        vm.areaSelectData = res.sBusAreaList;
+      });
+    },
     search() {
       this.$store.dispatch("page_vInfo", this.vInfoQuery).catch(res => {});
     },
     add() {
       this.loading = false;
       this.$refs.form.reset();
+      this.vo = {};
       this.opt = "add";
       this.title = "新增车辆信息";
       this.dialog = true;
@@ -415,13 +426,14 @@ export default {
       this.vInfoQuery["line"] = "";
       this.vInfoQuery["area"] = "";
       this.vInfoQuery["idcard"] = "";
+      this.search();
     }
   },
   filters: {
     formatDate(time) {
       if (!!!time) return "";
       var date = new Date(time);
-      return moment(date).format("YYYY-MM-DD hh:mm:ss");
+      return moment(date).format("YYYY-MM-DD");
     }
   },
   watch: {
