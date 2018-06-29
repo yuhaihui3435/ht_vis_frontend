@@ -13,6 +13,7 @@ import vChange from './modules/vChange';
 import cMeeting from './modules/cMeeting';
 import cDepartment from './modules/cDepartment';
 import cStaff from './modules/cStaff';
+import cInfo from './modules/cInfo';
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -140,7 +141,8 @@ const store = new Vuex.Store({
     vChange,
     cMeeting,
     cStaff,
-    cDepartment
+    cDepartment,
+    cInfo
   }
 });
 

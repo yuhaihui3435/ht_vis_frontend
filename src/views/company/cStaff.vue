@@ -19,7 +19,7 @@
                               </v-text-field>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                              <v-text-field v-model="vo.code"  label="编号" required
+                              <v-text-field v-model="vo.code"  label="编号" required :disabled="opt=='edit'"
                                   :rules="[
                                   rules.required,
                                   (v) => !!v||(v!=undefined&&v.length <= 50) || '最多 50 字符',
@@ -47,6 +47,56 @@
           <v-btn color="success darken-1" flat @click.native="update" v-show="opt=='edit'" :loading="loading" :disabled="loading||!fValid">保存</v-btn>
         </v-card-actions>
       </v-card>
+  </v-dialog>
+  <v-dialog v-model="djDialog" persistent max-width="600px">
+      <v-card >
+        <v-card-title>
+          <span class="headline">设置部门职位</span>
+        </v-card-title>
+        <v-card-text>
+            <v-form v-model="djFValid" ref="djForm" lazy-validation>
+                <v-container grid-list-md>
+                  <v-layout wrap>
+                           <v-flex xs12 sm6 md3 >
+                              <v-select :items="departmentList" v-model="djVo.dCode" :rules="[rules.required]" label="部门" required item-value="code" item-text="name"></v-select>
+                           </v-flex>
+                           <v-flex xs12 sm6 md3 >
+                              <v-select :items="jobList" v-model="djVo.jobId" :rules="[rules.required]" label="职位" required item-value="id" item-text="name"></v-select>
+                           </v-flex>
+                           <v-flex xs12 sm6 md3 >
+                              <v-switch v-model="djVo.head" label="部门负责人" value="0"></v-switch>
+                           </v-flex>
+                           <v-flex xs12 sm6 md3 >
+                              <v-btn color="success darken-1" flat @click.native="saveDj"  :loading="loading" :disabled="loading||!djFValid">保存</v-btn>
+                           </v-flex>
+                  </v-layout>
+                </v-container>
+            </v-form>
+            <v-data-table :headers="djHeaders" :total-items="totalRow" hide-actions :items="djList"   class="elevation-1" no-data-text="数据为空" no-results-text="没有筛选到正确的数据">
+                              <template slot="items" slot-scope="props">
+                                <td>
+                                          {{props.item.dName}}
+                                </td>
+                                <td>
+                                          {{props.item.jName}}
+                                </td>
+                                <td>
+                                          {{props.item.headStr}}
+                                </td>
+                                <td class=" layout px-0">
+                                  <v-btn icon class="mx-0" @click="delDj(props.item)">
+                                    <v-icon color="pink">delete</v-icon>
+                                  </v-btn>
+                                </td>
+                              </template>
+            </v-data-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error darken-1" flat @click.native="djDialog = false">关闭</v-btn>
+        </v-card-actions>
+      </v-card>
+      
   </v-dialog>
   <v-dialog v-model="viewDialog" persistent max-width="300px">
         <v-card >
@@ -120,6 +170,9 @@
                   <v-btn icon class="mx-0" @click="view(props.item)">
                       <v-icon color="teal">fas fa-eye</v-icon>
                   </v-btn>
+                  <v-btn icon class="mx-0" @click="setDj(props.item)">
+                      <v-icon color="teal">settings</v-icon>
+                  </v-btn>
                 </td>
               </template>
           </v-data-table>
@@ -161,7 +214,31 @@ export default {
       ],
       dialog: false,
       viewDialog: false,
-      opt: ""
+      opt: "",
+      djDialog: false,
+      djFValid: false,
+      djVo: {},
+      departmentList: [],
+      jobList: [],
+      djList: [],
+      djHeaders: [
+        {
+          text: "部门",
+          sortable: false,
+          value: "dName"
+        },
+        {
+          text: "职位",
+          sortable: false,
+          value: "jName"
+        },
+        {
+          text: "负责人",
+          sortable: false,
+          value: "head"
+        },
+        { text: "操作", sortable: false }
+      ]
     };
   },
   computed: {
@@ -260,6 +337,7 @@ export default {
     view(cStaff) {
       let vm = this;
       vm.viewDialog = true;
+      vm.loading = true;
       vm.$store
         .dispatch("get_cStaff", { id: cStaff.id })
         .then(res => {
@@ -274,6 +352,67 @@ export default {
       this.cStaffQuery["code"] = "";
       this.cStaffQuery["tel"] = "";
       this.search();
+    },
+    listDj(staffCode) {
+      let vm=this;
+      vm.$store
+        .dispatch("list_cStaff_dj", { staffCode: staffCode })
+        .then(res => {
+          vm.loading = false;
+          vm.djList = res.djList;
+          vm.jobList=res.jobList;
+          vm.departmentList=res.departmentList;
+        })
+        .catch(res => {
+          vm.loading = false;
+        });
+    },
+    setDj(item) {
+      let vm = this;
+      this.$refs.djForm.reset();
+      vm.djDialog = true;
+      vm.loading = true;
+      vm.djVo = {sCode:item.code};
+      vm.listDj(item.code);
+    },
+    saveDj() {
+      let vm=this;
+      if (vm.$refs.djForm.validate()) {
+        vm.loading = true;
+        vm.$store
+          .dispatch("save_cStaff_dj", vm.djVo)
+          .then(res => {
+            vm.loading = false;
+            if (res.resCode == "success") {
+              vm.dialog = false;
+              vm.listDj(vm.djVo.sCode);
+            }
+          })
+          .catch(res => {
+            vm.loading = false;
+          });
+      }
+    },
+    delDj(item) {
+      let vm=this;
+      this.$APDialog.confirm(function(ret) {
+        if (ret) {
+          vm.loading = true;
+          vm.$store
+            .dispatch("del_cStaff_dj", { djId: item.id })
+            .then(res => {
+              vm.loading = false;
+              if (res.resCode == "success") {
+                vm.dialog = false;
+                vm.listDj(item.sCode);
+              }
+            })
+            .catch(res => {
+              vm.loading = false;
+            });
+        } else {
+        }
+      });
     }
   },
   filters: {},

@@ -18,12 +18,12 @@
                                   :counter="100">
                               </v-text-field>
                            </v-flex>
-                           <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                <v-select :items="hostSelectData" v-model="vo.host" :rules="[rules.required]" label="主持人" required item-value="value" item-text="text"></v-select>
+                           <v-flex xs12 sm12 md12 v-show="opt=='add'||opt=='edit'">
+                                <v-select :items="hostSelectData" v-model="vo.host" :rules="[rules.required]" label="主持人" multiple required item-value="name" item-text="name"></v-select>
                            </v-flex>
                             
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                <v-select :items="typeSelectData" v-model="vo.type" :rules="[rules.required]" label="类型" required item-value="value" item-text="text"></v-select>
+                                <v-select :items="typeSelectData" v-model="vo.type" :rules="[rules.required]" label="类型" required item-value="id" item-text="name"></v-select>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.num"  label="参会人数" 
@@ -79,7 +79,7 @@
         </v-card-actions>
       </v-card>
   </v-dialog>
-  <v-dialog v-model="viewDialog" persistent max-width="300px">
+  <v-dialog v-model="viewDialog" persistent max-width="600px">
         <v-card >
           <v-card-title>
             <span class="headline">查看详细</span>
@@ -90,10 +90,7 @@
                                     <v-list-tile-content>主题:</v-list-tile-content><v-list-tile-content class="align-end">{{cMeetingView.title}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
-                                    <v-list-tile-content>主持人:</v-list-tile-content><v-list-tile-content class="align-end">{{cMeetingView.hostStr}}</v-list-tile-content>
-                             </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>内容:</v-list-tile-content><v-list-tile-content class="align-end">{{cMeetingView.content}}</v-list-tile-content>
+                                    <v-list-tile-content>主持人:</v-list-tile-content><v-list-tile-content class="align-end">{{cMeetingView.host}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>参会人数:</v-list-tile-content><v-list-tile-content class="align-end">{{cMeetingView.num}}</v-list-tile-content>
@@ -101,7 +98,13 @@
                               <v-list-tile>
                                     <v-list-tile-content>会议日期:</v-list-tile-content><v-list-tile-content class="align-end">{{cMeetingView.mAt | formatDate}}</v-list-tile-content>
                              </v-list-tile>
-                  </v-list>
+                                    <v-card>
+                                      <v-card-title>内容</v-card-title>
+                                        <v-card-text>
+                                            {{cMeetingView.content}}
+                                        </v-card-text>
+                                    </v-card>
+                  </v-list> 
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="error darken-1" flat @click.native="viewDialog = false">关闭</v-btn>
@@ -121,7 +124,7 @@
                             <v-text-field v-model="cMeetingQuery.title"  label="主题" single-line hide-details ></v-text-field>
                          </v-flex>
                     <v-flex xs12 sm3 md3>
-                        <v-select :items="typeSelectData" v-model="cMeetingQuery.type" label="类型"  item-value="value" item-text="text"></v-select>
+                        <v-select :items="typeSelectData" v-model="cMeetingQuery.type" label="类型"  item-value="id" item-text="name"></v-select>
                     </v-flex>
                          <v-flex xs12 sm3 md3 >
                               <v-menu ref="mAtQueryBeginDateMenu" :close-on-content-click="false" v-model="mAtQueryBeginDateMenu" :return-value.sync="cMeetingQuery.beginMAt"
@@ -153,7 +156,7 @@
                                {{props.item.title}}
                     </td>
                     <td>
-                               {{props.item.hostStr}}
+                               {{props.item.host}}
                     </td>
                     <td>
                                {{props.item.typeStr}}
@@ -254,7 +257,10 @@ export default {
   methods: {
     init() {
       let vm = this;
-      this.$store.dispatch("init_cMeeting").then(res => {});
+      this.$store.dispatch("init_cMeeting").then(res => {
+        vm.typeSelectData=res.meetingTypeList;
+        vm.hostSelectData=res.staffList;
+      });
     },
     search() {
       this.$store
@@ -273,12 +279,15 @@ export default {
       this.loading = false;
       this.opt = "edit";
       this.vo = Object.assign({}, cMeeting);
+      this.vo.host=this.vo.host.split(',')
+      this.vo.type=parseInt(this.vo.type);
       this.dialog = true;
       this.title = "修改会议记录";
     },
     save() {
       let vm = this;
       if (this.$refs.form.validate()) {
+        vm.vo.host=vm.vo.host.join(',')
         vm.loading = true;
         this.$store
           .dispatch("save_cMeeting", vm.vo)
@@ -294,9 +303,10 @@ export default {
           });
       }
     },
-    update(cMeeting) {
+    update() {
       let vm = this;
       if (this.$refs.form.validate()) {
+        vm.vo.host=vm.vo.host.join(',')
         vm.loading = true;
         this.$store
           .dispatch("update_cMeeting", vm.vo)
@@ -355,7 +365,7 @@ export default {
     formatDate(time) {
       if (!!!time) return "";
       var date = new Date(time);
-      return moment(date).format("YYYY-MM-DD hh:mm:ss");
+      return moment(date).format("YYYY-MM-DD");
     }
   },
   watch: {

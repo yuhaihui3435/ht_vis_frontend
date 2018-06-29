@@ -3,6 +3,7 @@
   <v-card>
     <v-form v-model="valid">
          <v-tabs color="blue"  icons-and-text dark >
+             
              <v-tab   href="#tab-1">
                 基础设置
                 <v-icon>build</v-icon>

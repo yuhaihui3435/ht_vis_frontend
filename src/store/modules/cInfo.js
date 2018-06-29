@@ -1,29 +1,38 @@
-const cStaff = {
+const cInfo = {
   state: {
-    cStaff: {
+    cInfo: {
       id: '',
       name: '',
       code: '',
+      retDate: '',
+      cNo: '',
+      cType: '',
+      bType: '',
+      head: '',
       tel: '',
+      staffNum: '',
+      sofficerNum: '',
+      address: '',
       cAt: '',
-      dAt: '',
       lAt: '',
+      dAt: '',
+      opId: '',
     },
-    cStaffList: [],
+    cInfoList: [],
     totalPage: 0,
     pageNumber: 1,
     pageSize: 15,
     totalRow: 0,
   },
   mutations: {
-    setCStaff(state, obj) {
-      state.cStaff = Object.assign({}, obj)
+    setCInfo(state, obj) {
+      state.cInfo = Object.assign({}, obj)
     },
-    setCStaffList(state, list) {
-      state.cStaffList = list
+    setCInfoList(state, list) {
+      state.cInfoList = list
     },
-    setCStaffPage(state, page) {
-      state.cStaffList = page.list
+    setCInfoPage(state, page) {
+      state.cInfoList = page.list
       state.totalPage = page.totalPage
       state.pageNumber = page.pageNumber
       state.pageSize = page.pageSize
@@ -31,41 +40,41 @@ const cStaff = {
     },
   },
   actions: {
-    list_cStaff: function ({
+    list_cInfo: function ({
       commit,
       state
     }, param) {
       let vm = this._vm;
       return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/list', param).then((res) => {
-          commit('setCStaffList', res)
+        vm.$http.post('/cInfo/list', param).then((res) => {
+          commit('setCInfoList', res)
           resolve(res)
         }).catch((res) => {
           reject(res)
         });
       })
     },
-    page_cStaff: function ({
+    page_cInfo: function ({
       commit,
       state
     }, param) {
       let vm = this._vm;
       return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/page', param).then((res) => {
-          commit('setCStaffPage', res)
+        vm.$http.post('/cInfo/page', param).then((res) => {
+          commit('setCInfoPage', res)
           resolve(res)
         }).catch((res) => {
           reject(res)
         });
       })
     },
-    save_cStaff: function ({
+    save_cInfo: function ({
       commit,
       state
     }, param) {
       let vm = this._vm;
       return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/save', param).then((res) => {
+        vm.$http.post('/cInfo/save', param).then((res) => {
           resolve(res)
         }).catch((res) => {
           reject(res)
@@ -73,91 +82,52 @@ const cStaff = {
       })
 
     },
-    update_cStaff: function ({
+    update_cInfo: function ({
       commit,
       state
     }, param) {
       let vm = this._vm;
       return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/update', param).then((res) => {
+        vm.$http.post('/cInfo/update', param).then((res) => {
           resolve(res)
         }).catch((res) => {
           reject(res)
         });
       })
     },
-    del_cStaff: function ({
+    del_cInfo: function ({
       commit,
       state
     }, param) {
       let vm = this._vm;
       return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/logicDel', param).then((res) => {
+        vm.$http.post('/cInfo/logicDel', param).then((res) => {
           resolve(res)
         }).catch((res) => {
           reject(res)
         });
       })
     },
-    get_cStaff: function ({
+    get_cInfo: function ({
       commit,
       state
     }, param) {
       let vm = this._vm;
       return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/get', param).then((res) => {
+        vm.$http.post('/cInfo/get', param).then((res) => {
           resolve(res)
         }).catch((res) => {
           reject(res)
         });
       })
     },
-    init_cStaff: function ({
+    init_cInfo: function ({
       commit,
       state
     }, param) {
       let vm = this._vm;
       return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/init', param).then((res) => {
-          resolve(res)
-        }).catch((res) => {
-          reject(res)
-        });
-      })
-    },
-    list_cStaff_dj: function ({
-      commit,
-      state
-    }, param) {
-      let vm = this._vm;
-      return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/listDj', param).then((res) => {
-          resolve(res)
-        }).catch((res) => {
-          reject(res)
-        });
-      })
-    },
-    save_cStaff_dj: function ({
-      commit,
-      state
-    }, param) {
-      let vm = this._vm;
-      return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/saveDj', param).then((res) => {
-          resolve(res)
-        }).catch((res) => {
-          reject(res)
-        });
-      })
-    },
-    del_cStaff_dj: function ({
-      commit,
-      state
-    }, param) {
-      let vm = this._vm;
-      return new Promise(function (resolve, reject) {
-        vm.$http.post('/cStaff/delDj', param).then((res) => {
+        vm.$http.post('/cInfo/init', param).then((res) => {
           resolve(res)
         }).catch((res) => {
           reject(res)
@@ -168,4 +138,4 @@ const cStaff = {
 
 }
 
-export default cStaff
+export default cInfo
