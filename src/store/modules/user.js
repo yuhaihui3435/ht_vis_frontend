@@ -168,6 +168,20 @@ const user = {
         });
       })
     },
+
+    save_user_cInfo: function ({
+      commit,
+      state
+    }, param) {
+      let vm = this._vm;
+      return new Promise(function (resolve, reject) {
+        vm.$http.post('/user/saveUserCInfo', param).then((res) => {
+          resolve(res)
+        }).catch((res) => {
+          reject(res)
+        });
+      })
+    },
   },
 
 }

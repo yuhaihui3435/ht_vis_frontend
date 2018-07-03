@@ -63,6 +63,27 @@
         </v-card-actions>
       </v-card>
   </v-dialog>
+  <v-dialog v-model="setCInfoDialog" persistent max-width="500px">
+      <v-card >
+        <v-card-title>
+          <span class="headline">设置企业</span>
+        </v-card-title>
+        <v-card-text>
+                <v-container grid-list-md>
+                  <v-layout wrap>
+                        <v-flex xs12 sm12 md12 v-show="cInfoList.length>0">
+                            <v-select :items="cInfoList" v-model="vo.cCode" label="企业"  item-value="code" item-text="name" clearable></v-select>
+                        </v-flex>
+                  </v-layout>
+                </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="error darken-1" flat @click.native="setCInfoDialog = false">关闭</v-btn>
+          <v-btn color="success darken-1" flat @click.native="saveCInfo" :loading="loading" v-show="opt=='setCInfo'" :disabled="loading">保存</v-btn>
+        </v-card-actions>
+      </v-card>
+  </v-dialog>
   <v-dialog v-model="viewDialog" persistent max-width="300px">
         <v-card >
           <v-card-title>
@@ -204,6 +225,7 @@
                                {{props.item.cInfo!=undefined?props.item.cInfo.name:'系统用户'}}
                     </td>
                 <td class=" layout px-0">
+                  
                   <v-btn icon class="mx-0" @click="edit(props.item)">
                     <v-icon color="teal">edit</v-icon>
                   </v-btn>
@@ -225,6 +247,12 @@
                   </v-btn>
                   <span>设置角色</span>
                   </v-tooltip>
+                  <v-tooltip bottom>
+                  <v-btn   slot="activator" icon class="mx-0" @click="setCInfo(props.item)">
+                      <v-icon color="teal">business</v-icon>
+                  </v-btn>
+                  <span>设置企业</span>
+                  </v-tooltip>
                 </td>
               </template>
             </v-data-table>
@@ -234,6 +262,7 @@
 <script>
 import { mapState } from "vuex";
 import Kit from "../../../libs/kit.js";
+import param from '../../../store/modules/param.js';
 var moment = require("moment");
 export default {
   data() {
@@ -302,6 +331,7 @@ export default {
       cAtQueryBeginDateMenu: false,
       cAtQueryEndDateMenu: false,
       cInfoList:[],
+      setCInfoDialog:false,
     };
   },
   computed: {
@@ -320,6 +350,20 @@ export default {
     this.init();
   },
   methods: {
+    setCInfo(item){
+      this.loading = false;
+      this.vo=Object.assign({},item);
+      this.opt = "setCInfo";
+      this.setCInfoDialog=true;
+    },
+    saveCInfo(){
+      let vm=this;
+      this.$store.dispatch("save_user_cInfo",vm.vo).then(res => {
+        if(res.resCode=='success'){
+          vm.search();
+        }
+      });
+    },
     init(){
       let vm = this;
       this.$store.dispatch("init_user").then(res => {
@@ -437,6 +481,7 @@ export default {
       this.userQuery["beginCAt"] = "";
       this.userQuery["endCAt"] = "";
       this.userQuery["cCode"] = "";
+      this.search()
     },
     resetPwd(item){
 

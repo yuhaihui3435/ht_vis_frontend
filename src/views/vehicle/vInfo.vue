@@ -172,6 +172,9 @@
                     <v-flex xs12 sm3 md3 v-show="vInfoQuery.type=='1'">
                         <v-select :items="areaSelectData" v-model="vInfoQuery.area" label="地区"  item-value="id" item-text="name"></v-select>
                     </v-flex>
+                    <v-flex xs12 sm3 md3 v-show="cInfoList.length>0">
+                            <v-select :items="cInfoList" v-model="vInfoQuery.cCode" label="企业"  item-value="code" item-text="name"></v-select>
+                        </v-flex>
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="vInfoQuery.idcard"  label="身份证号" single-line hide-details ></v-text-field>
                          </v-flex>
@@ -187,6 +190,9 @@
               </v-container>
             <v-data-table :headers="vInfoHeaders" :total-items="totalRow" :hide-actions="totalRow==0" :items="vInfoList" :rows-per-page-items="rowsPerPageItems" :pagination.sync="vInfoQuery"  class="elevation-1" no-data-text="数据为空" no-results-text="没有筛选到正确的数据">
               <template slot="items" slot-scope="props">
+                    <td>
+                               {{props.item.cInfo!=undefined?props.item.cInfo.name:'未设置'}}
+                    </td>
                     <td>
                                {{props.item.licensePlate}}
                     </td>
@@ -249,6 +255,11 @@ export default {
       rules: Kit.inputRules,
       vInfoHeaders: [
         {
+          text: "企业",
+          sortable: false,
+          value: "cInfo"
+        },
+        {
           text: "牌照号",
           sortable: false,
           value: "licensePlate"
@@ -305,7 +316,8 @@ export default {
       ],
       regDateDateMenu: false,
       lineSelectData: [],
-      areaSelectData: []
+      areaSelectData: [],
+      cInfoList:[],
     };
   },
   computed: {
@@ -320,7 +332,7 @@ export default {
   },
   mounted() {
     this.vInfoQuery["pn"] = this.vInfoQuery.page;
-    this.search();
+    //this.search();
     this.init();
   },
   methods: {
@@ -329,6 +341,7 @@ export default {
       vm.$store.dispatch("init_vInfo").then(res => {
         vm.lineSelectData = res.busLineList;
         vm.areaSelectData = res.sBusAreaList;
+        vm.cInfoList=res.cInfoList;
       });
     },
     search() {
@@ -426,6 +439,7 @@ export default {
       this.vInfoQuery["line"] = "";
       this.vInfoQuery["area"] = "";
       this.vInfoQuery["idcard"] = "";
+      this.vInfoQuery["cCode"] = "";
       this.search();
     }
   },

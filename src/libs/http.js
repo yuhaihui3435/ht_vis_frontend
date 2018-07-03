@@ -71,13 +71,13 @@ ajaxMethod.forEach((method)=> {
                     resolve(data);
 
             }).catch((response)=> {
-                if (response.status === 401||response.status === 900||response.status === 901) {
+                if (response.status === 401||response.status === 900||response.status === 901||response.status==999) {
                     Kit.msg.err(response.data.resMsg)
                     store.commit('logout')
                     router.push({
                        path: "/login"
                     });
-                }else if (response.status === 403||response.status==999||response.status==500) {
+                }else if (response.status === 403||response.status==500) {
                     Kit.msg.err(response.data.resMsg)
                     reject(response)
                 }
