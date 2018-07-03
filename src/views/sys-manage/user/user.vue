@@ -149,6 +149,9 @@
                         <v-flex xs12 sm3 md3>
                             <v-select :items="userSelectData" v-model="userQuery.status" label="状态"  item-value="value" item-text="text"></v-select>
                         </v-flex>
+                        <v-flex xs12 sm3 md3 v-show="cInfoList.length>0">
+                            <v-select :items="cInfoList" v-model="userQuery.cCode" label="企业"  item-value="code" item-text="name"></v-select>
+                        </v-flex>
                          <v-flex xs12 sm3 md3 >
                               <v-menu ref="cAtQueryBeginDateMenu" :close-on-content-click="false" v-model="cAtQueryBeginDateMenu" 
                                    :nudge-right="40" lazy transition="scale-transition" offset-y full-width max-width="290px" min-width="290px" >
@@ -196,6 +199,9 @@
                     </td>
                     <td>
                                {{props.item.userRoleNames!=undefined?props.item.userRoleNames.join(','):'未设置'}}
+                    </td>
+                    <td>
+                               {{props.item.cInfo!=undefined?props.item.cInfo.name:'系统用户'}}
                     </td>
                 <td class=" layout px-0">
                   <v-btn icon class="mx-0" @click="edit(props.item)">
@@ -278,6 +284,11 @@ export default {
           sortable: false,
           value: "userRoleNames"
         },
+        {
+          text: "企业",
+          sortable: false,
+          value: "cInfo"
+        },
         { text: "操作", sortable: false }
       ],
       dialog: false,
@@ -289,7 +300,8 @@ export default {
         { text: "禁用", value: "1" }
       ],
       cAtQueryBeginDateMenu: false,
-      cAtQueryEndDateMenu: false
+      cAtQueryEndDateMenu: false,
+      cInfoList:[],
     };
   },
   computed: {
@@ -305,8 +317,15 @@ export default {
   },
   mounted() {
     this.search();
+    this.init();
   },
   methods: {
+    init(){
+      let vm = this;
+      this.$store.dispatch("init_user").then(res => {
+        vm.cInfoList = res.cInfoList;
+      });
+    },
     setRole(user){
       let vm=this;
       this.$store.dispatch('get_user',{id:user.id}).then(res=>{
@@ -336,6 +355,7 @@ export default {
     add() {
       this.loading = false;
       this.$refs.form.reset();
+      this.vo={};
       this.opt = "add";
       this.title = "新增用户信息表";
       this.dialog = true;
@@ -416,6 +436,7 @@ export default {
       this.userQuery["status"] = "";
       this.userQuery["beginCAt"] = "";
       this.userQuery["endCAt"] = "";
+      this.userQuery["cCode"] = "";
     },
     resetPwd(item){
 

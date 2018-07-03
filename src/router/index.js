@@ -197,17 +197,17 @@ export const appRouter = [{
     path: '/company',
     icon: 'business',
     name: 'company',
-    title: '公司管理',
+    title: '企业管理',
     component: Main,
     meta: {
-      title: '公司管理'
+      title: '企业管理'
     },
     children: [{
         path: 'info',
-        title: '企业信息',
+        title: '企业信息管理',
         meta: {
-          title: '企业信息',
-          pTitle: '公司管理',
+          title: '企业信息管理',
+          pTitle: '企业管理',
           icon: "info",
         },
         icon: "info",

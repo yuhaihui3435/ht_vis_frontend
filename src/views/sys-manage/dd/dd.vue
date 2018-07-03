@@ -186,6 +186,7 @@ export default {
       let vm=this;
       this.loading = false;
       this.$refs.form.reset();
+      this.vo={};
       this.dialog = true;
       this.opt = "add";
       let data={}

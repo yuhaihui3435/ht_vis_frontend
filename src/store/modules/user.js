@@ -155,6 +155,19 @@ const user = {
         });
       })
     },
+    init_user: function ({
+      commit,
+      state
+    }, param) {
+      let vm = this._vm;
+      return new Promise(function (resolve, reject) {
+        vm.$http.post('/user/init', param).then((res) => {
+          resolve(res)
+        }).catch((res) => {
+          reject(res)
+        });
+      })
+    },
   },
 
 }

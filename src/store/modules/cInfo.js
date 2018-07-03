@@ -33,6 +33,7 @@ const cInfo = {
     },
     setCInfoPage(state, page) {
       state.cInfoList = page.list
+      console.info(state.cInfoList[0])
       state.totalPage = page.totalPage
       state.pageNumber = page.pageNumber
       state.pageSize = page.pageSize

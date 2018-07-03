@@ -293,6 +293,7 @@ export default {
     add() {
       this.loading = false;
       this.$refs.form.reset();
+      this.vo={};
       this.opt = "add";
       this.title = "新增角色表";
       this.dialog = true;
