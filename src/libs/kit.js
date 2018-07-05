@@ -151,5 +151,5 @@ kit.msg.err = function (msg) {
 
 }
 kit.env=(env == 'development' ? '/api' : '');
-
+kit.envImg=(env == 'development' ? '' : '/ht_vis');
 export default kit
