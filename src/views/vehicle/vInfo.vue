@@ -9,6 +9,9 @@
             <v-form v-model="fValid" ref="form" lazy-validation>
                 <v-container grid-list-md>
                   <v-layout wrap>
+                           <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(cInfoList&&cInfoList.length>0)">
+                                <v-select :items="cInfoList" v-model="vo.cCode" :rules="[]" label="企业"  item-value="code" item-text="name"></v-select>
+                           </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.licensePlate"  label="牌照号" required
                                   :rules="[
@@ -36,6 +39,7 @@
                            <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(vo.type&&vo.type=='1')">
                                 <v-select :items="areaSelectData" v-model="vo.area" :rules="[]" label="地区"  item-value="id" item-text="name"></v-select>
                            </v-flex>
+
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.tel"  label="手机" required
                                   :rules="[
@@ -108,16 +112,19 @@
           </v-card-title>
             <v-divider></v-divider>
                   <v-list dense>
+                            <v-list-tile>
+                                    <v-list-tile-content>企业名称:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.cInfo?vInfoView.cInfo.name:'未设置'}}</v-list-tile-content>
+                             </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>牌照号:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.licensePlate}}</v-list-tile-content>
                              </v-list-tile>
                              <v-list-tile>
                                     <v-list-tile-content>类型:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.typeStr}}</v-list-tile-content>
                              </v-list-tile>
-                              <v-list-tile>
+                              <v-list-tile v-if="vInfoView.line">
                                     <v-list-tile-content>线路:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.lineStr}}</v-list-tile-content>
                              </v-list-tile>
-                              <v-list-tile>
+                              <v-list-tile v-if="vInfoView.area">
                                     <v-list-tile-content>地区:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.areaStr}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
@@ -126,11 +133,11 @@
                               <v-list-tile>
                                     <v-list-tile-content>手机:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.tel}}</v-list-tile-content>
                              </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>备用手机:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.telx}}</v-list-tile-content>
+                             <v-list-tile>
+                                    <v-list-tile-content>注册时间:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.regDate | formatDate}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
-                                    <v-list-tile-content>注册时间:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.regDate | formatDate}}</v-list-tile-content>
+                                    <v-list-tile-content>备用手机:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.telx}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>身份证号:</v-list-tile-content><v-list-tile-content class="align-end">{{vInfoView.idcard}}</v-list-tile-content>
@@ -311,8 +318,11 @@ export default {
       viewDialog: false,
       opt: "",
       typeSelectData: [
-        { text: "公交", value: "0" },
-        { text: "校车", value: "1" }
+        { text: "班车客运", value: "0" },
+        { text: "校车", value: "1" },
+        { text: "旅游客运", value: "2" },
+        { text: "包车客运", value: "3" },
+        { text: "出租车客运", value: "4" },
       ],
       regDateDateMenu: false,
       lineSelectData: [],
@@ -458,6 +468,11 @@ export default {
         }
       },
       deep: true
+    },
+    'vo.regDate':{
+      handler(val, oldVal) {
+          this.vo.regDate=moment(this.vo.regDate).format("YYYY-MM-DD");
+      },
     }
   }
 };

@@ -149,7 +149,21 @@ export const appRouter = [{
     meta: {
       title: '车辆管理'
     },
-    children: [{
+    children: [
+      {
+        path: 'line',
+        title: '行车线路管路',
+        meta: {
+          title: '行车线路管路',
+          pTitle: '车辆管理',
+          icon: "timeline",
+        },
+        icon: "timeline",
+        name: 'vehicle_line',
+        component: resolve => {
+          require(['@/views/vehicle/vLine.vue'], resolve);
+        }
+      },{
         path: 'info',
         title: '车辆管理',
         meta: {
