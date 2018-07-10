@@ -59,6 +59,21 @@
               <v-btn class="blue--text" @click.native="add()">新增<v-icon>add</v-icon></v-btn>
     </v-toolbar>
     <v-card >
+              <v-container grid-list-md>
+                  <v-layout row wrap>
+                        <v-flex xs12 sm6 md4 v-show="cInfoList&&cInfoList.length>0">
+                            <v-select :items="cInfoList" v-model="vLineQuery.cCode" :rules="[]" label="企业"  item-value="code" item-text="name"></v-select>
+                        </v-flex>
+                        <v-flex xs12 sm3 md3>
+                             <v-btn color="primary" class="white--text" @click="search()">
+                                 搜索<v-icon>search</v-icon>
+                             </v-btn>
+                             <v-btn color="primary" class="white--text" @click="clearQueryParam()">
+                                 清空<v-icon>clear</v-icon>
+                             </v-btn>
+                        </v-flex>
+                      </v-layout>
+              </v-container>
             <v-data-table :headers="vLineHeaders" :total-items="totalRow" :hide-actions="totalRow==0" :items="vLineList" :rows-per-page-items="rowsPerPageItems" :pagination.sync="vLineQuery"  class="elevation-1" no-data-text="数据为空" no-results-text="没有筛选到正确的数据">
               <template slot="items" slot-scope="props">
                     <td>
@@ -226,6 +241,7 @@ export default {
         });
     },
     clearQueryParam() {
+      this.vLineQuery['cCode']='';
       this.search();
     }
   },

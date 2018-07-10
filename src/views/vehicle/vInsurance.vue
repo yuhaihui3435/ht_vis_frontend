@@ -307,6 +307,7 @@ export default {
       eAtQueryBeginDateMenu:false,
       eAtQueryEndDateMenu:false,
       allVInfo:[],
+      // cInfoList:[],
     };
   },
   computed: {
@@ -331,6 +332,7 @@ export default {
         .dispatch("init_vInsurance")
         .then(res => {
           vm.allVInfo=res.allVInfo;
+          // vm.cInfoList=res.cInfoList;
         });
     },
     search() {

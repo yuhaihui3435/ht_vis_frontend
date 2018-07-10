@@ -15,6 +15,7 @@ import cDepartment from './modules/cDepartment';
 import cStaff from './modules/cStaff';
 import cInfo from './modules/cInfo';
 import vLine from './modules/vLine';
+import spAssessmentCriteria from './modules/spAssessmentCriteria';
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -145,6 +146,7 @@ const store = new Vuex.Store({
     cDepartment,
     cInfo,
     vLine,
+    spAssessmentCriteria,
   }
 });
 

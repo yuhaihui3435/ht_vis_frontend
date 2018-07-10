@@ -276,15 +276,29 @@ export const appRouter = [{
     ]
   },
   {
-    path: '/safeProduction',
+    path: '/sp',
     icon: 'security',
-    name: 'company',
+    name: 'sp',
     title: '安全生产管理',
     component: Main,
     meta: {
       title: '安全生产管理'
     },
-    children: [{
+    children: [
+      {
+        path: 'criteria',
+        title: '考评标准',
+        meta: {
+          title: '考评标准',
+          pTitle: '安全生产管理',
+          icon: "insert_drive_file",
+        },
+        icon: "insert_drive_file",
+        name: 'sp_criteria',
+        component: resolve => {
+          require(['@/views/sp/spAssessmentCriteria.vue'], resolve);
+        }
+      },{
       path: 'system',
       title: '制度管理',
       meta: {

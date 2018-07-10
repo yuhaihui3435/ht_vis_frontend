@@ -31,14 +31,14 @@
                               </v-text-field>
                            </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
-                                <v-select :items="typeSelectData" v-model="vo.type" :rules="[rules.required]" label="类型" required item-value="value" item-text="text"></v-select>
+                                <v-select :items="typeSelectData" v-model="vo.type" :rules="[rules.required]" label="类型" required item-value="id" item-text="name"></v-select>
                            </v-flex>
-                           <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(vo.type&&vo.type=='0')">
+                           <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(lineSelectData&&lineSelectData.length>0)">
                                 <v-select :items="lineSelectData" v-model="vo.line" :rules="[]" label="线路"  item-value="id" item-text="name"></v-select>
                            </v-flex>
-                           <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(vo.type&&vo.type=='1')">
+                           <!-- <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(vo.type&&vo.type=='1')">
                                 <v-select :items="areaSelectData" v-model="vo.area" :rules="[]" label="地区"  item-value="id" item-text="name"></v-select>
-                           </v-flex>
+                           </v-flex> -->
 
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.tel"  label="手机" required
@@ -165,7 +165,7 @@
                             <v-text-field v-model="vInfoQuery.host"  label="车主" single-line hide-details ></v-text-field>
                          </v-flex>
                     <v-flex xs12 sm3 md3>
-                        <v-select :items="typeSelectData" v-model="vInfoQuery.type" label="类型"  item-value="value" item-text="text"></v-select>
+                        <v-select :items="typeSelectData" v-model="vInfoQuery.type" label="类型"  item-value="id" item-text="name"></v-select>
                     </v-flex>
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="vInfoQuery.tel"  label="手机" single-line hide-details ></v-text-field>
@@ -173,15 +173,16 @@
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="vInfoQuery.telx"  label="备用手机" single-line hide-details ></v-text-field>
                          </v-flex>
-                    <v-flex xs12 sm3 md3 v-show="vInfoQuery.type=='0'">
-                        <v-select :items="lineSelectData" v-model="vInfoQuery.line" label="线路"   item-value="id" item-text="name"></v-select>
-                    </v-flex>
-                    <v-flex xs12 sm3 md3 v-show="vInfoQuery.type=='1'">
-                        <v-select :items="areaSelectData" v-model="vInfoQuery.area" label="地区"  item-value="id" item-text="name"></v-select>
-                    </v-flex>
                     <v-flex xs12 sm3 md3 v-show="cInfoList.length>0">
                             <v-select :items="cInfoList" v-model="vInfoQuery.cCode" label="企业"  item-value="code" item-text="name"></v-select>
-                        </v-flex>
+                    </v-flex>
+                    <v-flex xs12 sm3 md3 v-show="lineSelectData&&lineSelectData.length>0">
+                        <v-select :items="lineSelectData" v-model="vInfoQuery.line" label="线路"   item-value="id" item-text="name"></v-select>
+                    </v-flex>
+                    <!-- <v-flex xs12 sm3 md3 v-show="vInfoQuery.type=='1'">
+                        <v-select :items="areaSelectData" v-model="vInfoQuery.area" label="地区"  item-value="id" item-text="name"></v-select>
+                    </v-flex> -->
+                    
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="vInfoQuery.idcard"  label="身份证号" single-line hide-details ></v-text-field>
                          </v-flex>
@@ -212,9 +213,9 @@
                     <td>
                                {{props.item.lineStr}}
                     </td>
-                    <td>
+                    <!-- <td>
                                {{props.item.areaStr}}
-                    </td>
+                    </td> -->
                     <td>
                                {{props.item.tel}}
                     </td>
@@ -286,11 +287,11 @@ export default {
           sortable: false,
           value: "line"
         },
-        {
-          text: "地区",
-          sortable: false,
-          value: "area"
-        },
+        // {
+        //   text: "地区",
+        //   sortable: false,
+        //   value: "area"
+        // },
         {
           text: "手机",
           sortable: false,
@@ -318,16 +319,12 @@ export default {
       viewDialog: false,
       opt: "",
       typeSelectData: [
-        { text: "班车客运", value: "0" },
-        { text: "校车", value: "1" },
-        { text: "旅游客运", value: "2" },
-        { text: "包车客运", value: "3" },
-        { text: "出租车客运", value: "4" },
       ],
       regDateDateMenu: false,
       lineSelectData: [],
       areaSelectData: [],
       cInfoList:[],
+      vLineList:[],
     };
   },
   computed: {
@@ -349,9 +346,15 @@ export default {
     init() {
       let vm = this;
       vm.$store.dispatch("init_vInfo").then(res => {
-        vm.lineSelectData = res.busLineList;
-        vm.areaSelectData = res.sBusAreaList;
-        vm.cInfoList=res.cInfoList;
+        // vm.lineSelectData = res.busLineList;
+        // vm.areaSelectData = res.sBusAreaList;
+        vm.typeSelectData=res.vTypeList
+        if(res.cInfo){
+          vm.lineSelectData=res.vLineList[res.cInfo.code];
+        }else{
+          vm.cInfoList=res.cInfoList;
+          vm.vLineList=res.vLineList;
+        }
       });
     },
     search() {
@@ -473,6 +476,22 @@ export default {
       handler(val, oldVal) {
           this.vo.regDate=moment(this.vo.regDate).format("YYYY-MM-DD");
       },
+    },
+    'vo.cCode':{
+      handler(val,oldVal){
+        if(val==undefined)return;
+        if(val!=oldVal){
+          this.lineSelectData=this.vLineList[val];
+        }
+      }
+    },
+    'vInfoQuery.cCode':{
+      handler(val,oldVal){
+        if(val==undefined)return;
+        if(val!=oldVal){
+          this.lineSelectData=this.vLineList[val];
+        }
+      }
     }
   }
 };

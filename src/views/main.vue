@@ -8,7 +8,7 @@
               <v-list-tile-title v-text="item.meta.title"></v-list-tile-title>
             </v-list-tile-content>
           </v-list-tile>
-          <v-list-tile v-for="subItem in item.children" :key="subItem.title" @click="menuClick(item.path,subItem.path)" v-model="subItem.path==currMenuItem">
+          <v-list-tile v-for="subItem in item.children" :key="subItem.title" @click="menuClick(item.path,subItem.path)" v-model="subItem.path==currMenuItem&&item.path == currOpenedMenu">
             <v-list-tile-content>
               <v-list-tile-title>{{ subItem.meta.title }}</v-list-tile-title>
             </v-list-tile-content>

@@ -9,6 +9,9 @@
             <v-form v-model="fValid" ref="form" lazy-validation>
                 <v-container grid-list-md>
                   <v-layout wrap>
+                           <v-flex xs12 sm6 md4 v-show="(opt=='add'||opt=='edit')&&(cInfoList&&cInfoList.length>0)">
+                                <v-select :items="cInfoList" v-model="vo.cCode" :rules="[]" label="企业"  item-value="code" item-text="name"></v-select>
+                           </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.name"  label="姓名" required
                                   :rules="[
@@ -67,7 +70,7 @@
                               <v-switch v-model="djVo.head" label="部门负责人" value="0"></v-switch>
                            </v-flex>
                            <v-flex xs12 sm6 md3 >
-                              <v-btn color="success darken-1" flat @click.native="saveDj"  :loading="loading" :disabled="loading||!djFValid">保存</v-btn>
+                              <v-btn color="primary" class="white--text"  @click.native="saveDj"  :loading="loading" :disabled="loading||!djFValid">保存</v-btn>
                            </v-flex>
                   </v-layout>
                 </v-container>
@@ -105,7 +108,10 @@
           </v-card-title>
             <v-divider></v-divider>
                   <v-list dense>
-                              <v-list-tile>
+                             <v-list-tile>
+                                    <v-list-tile-content>企业名称:</v-list-tile-content><v-list-tile-content class="align-end">{{cStaffView.cInfo?cStaffView.cInfo.name:'未设置'}}</v-list-tile-content>
+                             </v-list-tile>
+                             <v-list-tile>
                                     <v-list-tile-content>姓名:</v-list-tile-content><v-list-tile-content class="align-end">{{cStaffView.name}}</v-list-tile-content>
                              </v-list-tile>
                               <v-list-tile>
@@ -130,6 +136,9 @@
     <v-card >
               <v-container grid-list-md>
                       <v-layout row wrap>
+                         <v-flex xs12 sm6 md4 v-show="cInfoList&&cInfoList.length>0">
+                            <v-select :items="cInfoList" v-model="cStaffQuery.cCode" :rules="[]" label="企业"  item-value="code" item-text="name"></v-select>
+                         </v-flex>
                          <v-flex xs12 sm3 md3>
                             <v-text-field v-model="cStaffQuery.name"  label="姓名" single-line hide-details ></v-text-field>
                          </v-flex>
@@ -151,6 +160,9 @@
               </v-container>
             <v-data-table :headers="cStaffHeaders" :total-items="totalRow" :hide-actions="totalRow==0" :items="cStaffList" :rows-per-page-items="rowsPerPageItems" :pagination.sync="cStaffQuery"  class="elevation-1" no-data-text="数据为空" no-results-text="没有筛选到正确的数据">
               <template slot="items" slot-scope="props">
+                    <td>
+                               {{props.item.cInfo?props.item.cInfo.name:'未设置'}}
+                    </td>
                     <td>
                                {{props.item.name}}
                     </td>
@@ -196,6 +208,11 @@ export default {
       rules: Kit.inputRules,
       cStaffHeaders: [
         {
+          text: "企业",
+          sortable: false,
+          value: "cInfo.name"
+        },
+        {
           text: "姓名",
           sortable: false,
           value: "name"
@@ -222,6 +239,7 @@ export default {
       jobList: [],
       djList: [],
       djHeaders: [
+        
         {
           text: "部门",
           sortable: false,
@@ -238,7 +256,8 @@ export default {
           value: "head"
         },
         { text: "操作", sortable: false }
-      ]
+      ],
+      cInfoList: []
     };
   },
   computed: {
@@ -259,7 +278,9 @@ export default {
   methods: {
     init() {
       let vm = this;
-      this.$store.dispatch("init_cStaff").then(res => {});
+      this.$store.dispatch("init_cStaff").then(res => {
+        vm.cInfoList = res.cInfoList;
+      });
     },
     search() {
       this.$store.dispatch("page_cStaff", this.cStaffQuery).catch(res => {});
@@ -351,17 +372,18 @@ export default {
       this.cStaffQuery["name"] = "";
       this.cStaffQuery["code"] = "";
       this.cStaffQuery["tel"] = "";
+      this.cStaffQuery["cCode"] = "";
       this.search();
     },
     listDj(staffCode) {
-      let vm=this;
+      let vm = this;
       vm.$store
         .dispatch("list_cStaff_dj", { staffCode: staffCode })
         .then(res => {
           vm.loading = false;
           vm.djList = res.djList;
-          vm.jobList=res.jobList;
-          vm.departmentList=res.departmentList;
+          vm.jobList = res.jobList;
+          vm.departmentList = res.departmentList;
         })
         .catch(res => {
           vm.loading = false;
@@ -372,11 +394,11 @@ export default {
       this.$refs.djForm.reset();
       vm.djDialog = true;
       vm.loading = true;
-      vm.djVo = {sCode:item.code};
+      vm.djVo = { sCode: item.code };
       vm.listDj(item.code);
     },
     saveDj() {
-      let vm=this;
+      let vm = this;
       if (vm.$refs.djForm.validate()) {
         vm.loading = true;
         vm.$store
@@ -394,7 +416,7 @@ export default {
       }
     },
     delDj(item) {
-      let vm=this;
+      let vm = this;
       this.$APDialog.confirm(function(ret) {
         if (ret) {
           vm.loading = true;

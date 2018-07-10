@@ -9,6 +9,9 @@
             <v-form v-model="fValid" ref="form" lazy-validation>
                 <v-container grid-list-md>
                   <v-layout wrap>
+                          <v-flex xs12 sm6 md4  v-show="cInfoList&&cInfoList.length>0">
+                            <v-select :items="cInfoList" v-model="vo.cCode" :rules="[rules.required]" label="企业"  item-value="code" item-text="name"></v-select>
+                          </v-flex>
                            <v-flex xs12 sm6 md4 v-show="opt=='add'||opt=='edit'">
                               <v-text-field v-model="vo.name"  label="名称" required
                                   :rules="[
@@ -46,6 +49,9 @@
           </v-card-title>
             <v-divider></v-divider>
                   <v-list dense>
+                            <v-list-tile>
+                                    <v-list-tile-content>企业名称:</v-list-tile-content><v-list-tile-content class="align-end">{{cDepartmentView.cInfo?cDepartmentView.cInfo.name:'未设置'}}</v-list-tile-content>
+                             </v-list-tile>
                               <v-list-tile>
                                     <v-list-tile-content>名称:</v-list-tile-content><v-list-tile-content class="align-end">{{cDepartmentView.name}}</v-list-tile-content>
                              </v-list-tile>
@@ -67,14 +73,25 @@
     </v-toolbar>
     <v-card >
               <v-container grid-list-md>
-                      <v-layout row wrap>
+                  <v-layout row wrap>
+                        <v-flex xs12 sm6 md4 v-show="cInfoList&&cInfoList.length>0">
+                            <v-select :items="cInfoList" v-model="cDepartmentQuery.cCode" :rules="[]" label="企业"  item-value="code" item-text="name"></v-select>
+                        </v-flex>
                         <v-flex xs12 sm3 md3>
-                             
+                             <v-btn color="primary" class="white--text" @click="search()">
+                                 搜索<v-icon>search</v-icon>
+                             </v-btn>
+                             <v-btn color="primary" class="white--text" @click="clearQueryParam()">
+                                 清空<v-icon>clear</v-icon>
+                             </v-btn>
                         </v-flex>
                       </v-layout>
               </v-container>
             <v-data-table :headers="cDepartmentHeaders" :total-items="totalRow" :hide-actions="totalRow==0" :items="cDepartmentList" :rows-per-page-items="rowsPerPageItems" :pagination.sync="cDepartmentQuery"  class="elevation-1" no-data-text="数据为空" no-results-text="没有筛选到正确的数据">
               <template slot="items" slot-scope="props">
+                    <td>
+                               {{props.item.cInfo?props.item.cInfo.name:'未设置'}}
+                    </td>
                     <td>
                                {{props.item.name}}
                     </td>
@@ -114,6 +131,11 @@ export default {
       rules: Kit.inputRules,
       cDepartmentHeaders: [
         {
+          text: "企业名称",
+          sortable: false,
+          value: "cInfo.name"
+        },
+        {
           text: "名称",
           sortable: false,
           value: "name"
@@ -127,7 +149,8 @@ export default {
       ],
       dialog: false,
       viewDialog: false,
-      opt: ""
+      opt: "",
+      cInfoList:[],
     };
   },
   computed: {
@@ -148,7 +171,9 @@ export default {
   methods: {
     init() {
       let vm = this;
-      this.$store.dispatch("init_cDepartment").then(res => {});
+      this.$store.dispatch("init_cDepartment").then(res => {
+         vm.cInfoList=res.cInfoList;
+      });
     },
     search() {
       this.$store
@@ -238,6 +263,7 @@ export default {
         });
     },
     clearQueryParam() {
+      this.cDepartmentQuery['cCode']='';
       this.search();
     }
   },

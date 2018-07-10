@@ -328,7 +328,8 @@ export default {
       changeDateDateMenu: false,
       changeDateQueryBeginDateMenu: false,
       changeDateQueryEndDateMenu: false,
-      allVInfo: []
+      allVInfo: [],
+      // cInfoList:[],
     };
   },
   computed: {
@@ -351,6 +352,7 @@ export default {
       let vm = this;
       this.$store.dispatch("init_vChange").then(res => {
         vm.allVInfo = res.allVInfo;
+        // vm.cInfoList=res.cInfoList;
       });
     },
     search() {
