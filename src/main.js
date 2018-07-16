@@ -7,6 +7,7 @@ import {
 } from './router'
 import store from './store';
 import http from './libs/http';
+import uploader from 'vue-simple-uploader'
 import {
   Vuetify,
   VApp,
@@ -83,7 +84,7 @@ Vue.use(Vuetify, {
     success: "#4CAF50"
   }
 })
-
+Vue.use(uploader)
 Vue.use(APDialog)
 Vue.config.productionTip = false
 Vue.prototype.$http = http;

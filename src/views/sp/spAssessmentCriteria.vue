@@ -58,42 +58,23 @@
         </v-card-actions>
       </v-card>
   </v-dialog>
+  
   <v-dialog v-model="viewDialog" persistent max-width="600px">
+    
         <v-card >
           <v-card-title>
-            <span class="headline">查看详细</span>
+            <span class="headline">相关文件</span>
           </v-card-title>
             <v-divider></v-divider>
-                  <v-list dense>
-                              <v-list-tile>
-                                    <v-list-tile-content>指标:</v-list-tile-content><v-list-tile-content class="align-end">{{spAssessmentCriteriaView.normStr}}</v-list-tile-content>
-                             </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>标题:</v-list-tile-content><v-list-tile-content class="align-end">{{spAssessmentCriteriaView.titleStr}}</v-list-tile-content>
-                             </v-list-tile>
-                             <v-list-tile>
-                                    <v-list-tile-content>分值:</v-list-tile-content><v-list-tile-content class="align-end">{{spAssessmentCriteriaView.point}}</v-list-tile-content>
-                             </v-list-tile>
-                              <v-list-tile>
-                                    <v-list-tile-content>星级:</v-list-tile-content><v-list-tile-content class="align-end">{{spAssessmentCriteriaView.starsStr}}</v-list-tile-content>
-                             </v-list-tile>
-                             
-                               <v-card color="primary" dark>
-                                      <v-card-title>考评要点:</v-card-title>
-                                        <v-card-text>
-                                    {{spAssessmentCriteriaView.essential}}
-                                    </v-card-text></v-card>
-                             
-                              
-                              
-                                    <v-card color="pink" dark>
-                                      <v-card-title>评分标准:</v-card-title>
-                                        <v-card-text>{{spAssessmentCriteriaView.grading}}
-                                    </v-card-text>
-                                    </v-card>
-                             
-                             
-                  </v-list>
+            <div>
+                  <uploader ref="uploader" :options="upLoadOptions" class="uploader"  :fileStatusText="fileStatusText" @file-complete="fileComplete" @complete="complete" @file-success="fileSuccess" @file-added="fileAdded">
+                    <uploader-unsupport></uploader-unsupport>
+                    <uploader-drop>
+                      <uploader-btn :attrs="attrs">选择文件</uploader-btn>
+                    </uploader-drop>
+                    <uploader-list></uploader-list>
+                  </uploader>
+            </div>
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn color="error darken-1" flat @click.native="viewDialog = false">关闭</v-btn>
@@ -167,6 +148,7 @@
 <script>
 import { mapState } from "vuex";
 import Kit from "../../libs/kit.js";
+
 export default {
   data() {
     return {
@@ -221,7 +203,21 @@ export default {
         { text: "二级", value: "2" },
         { text: "三级", value: "3" }
       ],
-      normChildMap: {}
+      normChildMap: {},
+      upLoadOptions: {
+        target: Kit.env + "/cmn/act01",
+        testChunks: false
+      },
+      fileStatusText: {
+        success: "成功",
+        error: "失败",
+        uploading: "上传中",
+        paused: "暂停",
+        waiting: "等待"
+      },
+      attrs: {
+        accept: "application/pdf,application/msword"
+      }
     };
   },
   computed: {
@@ -240,6 +236,9 @@ export default {
     this.spAssessmentCriteriaQuery["pn"] = this.spAssessmentCriteriaQuery.page;
     this.search();
     this.init();
+    this.$nextTick(() => {
+      window.uploader = this.$refs.uploader.uploader;
+    });
   },
   methods: {
     init() {
@@ -345,7 +344,20 @@ export default {
       this.spAssessmentCriteriaQuery["title"] = "";
       this.spAssessmentCriteriaQuery["stars"] = "";
       this.search();
+    },
+    complete() {
+      console.log("complete", arguments);
+    },
+    fileComplete() {
+      console.log("file complete", arguments);
+    },
+    fileSuccess(rootFile, file, message, chunk){
+      console.info(message)
+    },
+    fileAdded(file,event){
+      console.info(file,event)
     }
+   
   },
   filters: {},
   watch: {
@@ -355,7 +367,7 @@ export default {
           this.spAssessmentCriteriaQuery.sortBy != "" ||
           val.page != oldVal.page
         ) {
-          this.spAssessmentCriteriaQuery.pn=val.page;
+          this.spAssessmentCriteriaQuery.pn = val.page;
           this.search();
         }
       },
